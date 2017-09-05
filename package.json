@@ -178,7 +178,7 @@
   },
   "release": {
     "branch": "master",
-    "debug": true
+    "debug": false
   },
   "config": {
     "commitizen": {
