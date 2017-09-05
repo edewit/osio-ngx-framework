@@ -2,7 +2,6 @@
  * @author: @AngularClass
  */
 
-const helpers = require('./helpers');
 const path = require('path');
 const stringify = require('json-stringify');
 /**
@@ -23,6 +22,22 @@ const ENV = process.env.ENV = process.env.NODE_ENV = 'test';
 const API_URL = process.env.API_URL || (ENV==='inmemory'?'app/':'http://localhost:8080/api/');
 const FABRIC8_WIT_API_URL = process.env.FABRIC8_WIT_API_URL;
 const FABRIC8_RECOMMENDER_API_URL = process.env.FABRIC8_RECOMMENDER_API_URL || 'http://api-bayesian.dev.rdu2c.fabric8.io/api/v1/';
+
+/**
+ * Helpers
+ */
+function hasProcessFlag(flag) {
+  return process.argv.join('').indexOf(flag) > -1;
+}
+
+function isWebpackDevServer() {
+  return process.argv[1] && !! (/webpack-dev-server/.exec(process.argv[1]));
+}
+
+function root(args) {
+  args = Array.prototype.slice.call(arguments, 0);
+  return path.join.apply(path, [path.resolve(__dirname, '..')].concat(args));
+}
 
 /**
  * Webpack configuration
@@ -93,8 +108,8 @@ module.exports = function (options) {
           use: ['source-map-loader'],
           exclude: [
             // these packages have problems with their sourcemaps
-            helpers.root('node_modules/rxjs'),
-            helpers.root('node_modules/@angular')
+            root('node_modules/rxjs'),
+            root('node_modules/@angular')
           ]
         },
 
@@ -120,7 +135,7 @@ module.exports = function (options) {
         {
           test: /\.json$/,
           use: ['json-loader'],
-          exclude: [helpers.root('src/index.html')]
+          exclude: [root('src/index.html')]
         },
 
         /*
@@ -196,7 +211,7 @@ module.exports = function (options) {
         {
           test: /\.html$/,
           use: ['raw-loader'],
-          exclude: [helpers.root('src/index.html')]
+          exclude: [root('src/index.html')]
         }
       ]
     },
@@ -239,7 +254,7 @@ module.exports = function (options) {
       new ContextReplacementPlugin(
         // The (\\|\/) piece accounts for path separators in *nix and Windows
         /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
-        helpers.root('src') // location of your src
+        root('src') // location of your src
       ),
 
        /**

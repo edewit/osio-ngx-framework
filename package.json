@@ -1,36 +1,30 @@
 {
-  "name": "patternfly-ng",
+  "name": "osio-ngx-framework",
   "version": "0.0.0-semantically-released",
-  "description": "A collection of PatternFly Angular components and other useful things to be shared.",
-  "main": "bundles/patternfly-ng.umd.js",
+  "description": "Shared component library for OSIO web modules.",
+  "main": "",
   "module": "index.js",
   "typings": "index.d.ts",
   "scripts": {
-    "build": "npm-run-all --serial remove-dist build:library build:demo copy-examples:demo",
+    "clean": "npm cache clean && npm-run-all --serial clean:dist clean:deps",
+    "clean:dist": "rimraf doc build coverage bundles dist dist-watch dist-demo",
+    "clean:deps": "rimraf node_modules",
+    "reinstall": "npm run clean && npm install",   
+    "build": "npm-run-all --serial clean:dist build:library build:demo build:copy-examples",
     "build:demo": "webpack --config config/webpack.demo.js --progress --profile --bail",
     "build:library": "gulp build",
-    "bundle": "webpack --config config/webpack.prod.js --progress --profile --bail",
-    "clean": "npm cache clean && npm run rimraf -- node_modules doc coverage dist distwatch bundles",
-    "cleanup": "rimraf dist/package.json dist/bundles dist/src dist/index.d.ts dist/index.metadata.json dist/index.js dist/index.js.map dist/LICENSE dist/README.md",
-    "commit": "git-cz",
-    "copy-examples:demo": "gulp copy-examples",
-    "minify": "uglifyjs dist/bundles/ngx-widgets.js --screw-ie8 --compress --mangle --comments --output dist/bundles/patternfly-ng.min.js",
-    "publish-travis": "node_modules/patternfly-eng-publish/script/publish-ghpages.sh -t dist-demo",
-    "reinstall": "npm run clean && npm install",
-    "remove-dist": "rimraf build dist dist-watch dist-demo",
-    "rimraf": "rimraf",
-    "start:demo": "webpack-dev-server --config config/webpack.demo.js --progress --host 0.0.0.0 --port 8001 --profile --watch --content-base dist-demo",
-    "test": "karma start",
-    "transpile": "gulp transpile",
+    "build:copy-examples": "gulp copy-examples",
+    "start": "webpack-dev-server --config config/webpack.demo.js --progress --host 0.0.0.0 --port 8001 --profile --watch --content-base dist-demo",
+    "test": "karma start config/karma.conf.js",
     "semantic-release": "semantic-release pre && copy package.json npm-shrinkwrap.json dist && npm publish dist && semantic-release post",
-    "semantic-release-post": "semantic-release post",
-    "semantic-release-pre": "semantic-release pre"
+    "semantic-release:pre": "semantic-release pre",
+    "semantic-release:post": "semantic-release post"
   },
   "license": "Apache-2.0",
   "contributors": [],
   "keywords": [
+    "osio",
     "patternfly",
-    "patternfly-ng",
     "bootstrap",
     "angular",
     "angular2",
@@ -41,13 +35,13 @@
     "ng2",
     "ng4"
   ],
-  "homepage": "https://github.com/patternfly/patternfly-ng",
+  "homepage": "https://github.com/michaelkleinhenz/osio-ngx-framework",
   "repository": {
     "type": "git",
-    "url": "https://github.com/patternfly/patternfly-ng.git"
+    "url": "https://github.com/michaelkleinhenz/osio-ngx-framework.git"
   },
   "bugs": {
-    "url": "https://github.com/patternfly/patternfly-ng/issues"
+    "url": "https://github.com/michaelkleinhenz/osio-ngx-framework/issues"
   },
   "engines": {
     "node": ">= 6.9.1",

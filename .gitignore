@@ -1,50 +1,34 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # compiled output
-/dist
-/dist-watch
-/app/*.js
-/app/*.js.map
-/tmp
-/dist-library
-/dist-demo
-/src/app/**/*.css
-/build
-/runtime/dll
-/runtime/dist
-/services/dist
+dist-demo
+src/app/**/*.css
+src/app/**/*.js
+src/app/**/*.js.map
+tmp
 
 # dependencies
-/node_modules
-/bower_components
-/runtime/node_modules
-/services/node_modules
+node_modules
 
 # IDEs and editors
-/.idea
+.idea
 .project
-.classpath
 *.launch
-.settings/
+.settings
 .vscode
 
 # misc
-/.sass-cache
-/connect.lock
-/coverage/*
-/libpeerconnection.log
+.sass-cache
+connect.lock
+coverage
+libpeerconnection.log
 npm-debug.log
-testem.log
-/typings
+typings
 functional_tests.log
 unit_tests.log
-/linters
+linters
 browser_logs.log
 stats.json
-
-# e2e
-/e2e/*.js
-/e2e/*.map
 
 #System Files
 .DS_Store

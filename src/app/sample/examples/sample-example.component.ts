@@ -25,9 +25,7 @@ export class SampleExampleComponent implements OnInit {
   disableComponent: Boolean = false;
   componentLabel: string = 'label here';
 
-  constructor() {
-  }
+  constructor() {}
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 }

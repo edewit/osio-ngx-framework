@@ -1,4 +1,9 @@
-const helpers = require('./helpers');
+/**
+ * Webpack configuration for the demo service. This is used to start
+ * a demonstration server that serves an example as well as the 
+ * documentation for this library.
+ */
+
 const webpack = require('webpack');
 const path = require('path');
 
@@ -18,13 +23,27 @@ const UglifyJsPlugin = require('webpack/lib/optimize/UglifyJsPlugin');
 const TsConfigPathsPlugin = require('awesome-typescript-loader').TsConfigPathsPlugin;
 const TypedocWebpackPlugin = require('typedoc-webpack-plugin');
 
-// ExtractTextPlugin
+/**
+ * Helpers
+ */
+function root(args) {
+  args = Array.prototype.slice.call(arguments, 0);
+  return path.join.apply(path, [path.resolve(__dirname, '..')].concat(args));
+}
+
+/**
+ * Plugin initializations
+ */
 const extractCSS = new ExtractTextPlugin({
   filename: '[name].[id].css',
   allChunks: true
 });
 
+/**
+ * Webpack configuration
+ */
 module.exports = {
+
   devServer: {
     stats: 'minimal',
     inline: true
@@ -60,24 +79,28 @@ module.exports = {
       {
         test: /\.html$/,
         loader: 'html-loader'
-      }, {
+      }, 
+      {
         test: /\.css$/,
         loader: extractCSS.extract({
           fallback: "style-loader",
           use: "css-loader?sourceMap&context=/"
         })
-      }, {
+      }, 
+      {
         test: /\.less$/,
         loaders: [
           {
             loader: 'css-to-string-loader'
-          }, {
+          }, 
+          {
             loader: 'css-loader',
             options: {
               sourceMap: true,
               context: '/'
             }
-          }, {
+          }, 
+          {
             loader: 'less-loader',
             options: {
               paths: ['./node_modules/patternfly/node_modules'],
@@ -87,8 +110,9 @@ module.exports = {
         ]
       },
 
-      /* File loader for supporting fonts, for example, in CSS files.
-       */
+      /**
+       * File loader for supporting fonts, for example, in CSS files.
+       */ 
       {
         test: /\.woff2?$|\.ttf$|\.eot$|\.svg$/,
         loaders: [
@@ -100,7 +124,8 @@ module.exports = {
             }
           }
         ]
-      }, {
+      }, 
+      {
         test: /\.jpg$|\.png$|\.gif$|\.jpeg$/,
         loaders: [
           {
@@ -116,7 +141,7 @@ module.exports = {
   },
 
   output: {
-    path: helpers.root('dist-demo'),
+    path: root('dist-demo'),
     publicPath: '',
     filename: '[name].js',
     chunkFilename: '[id].chunk.js',
@@ -124,7 +149,13 @@ module.exports = {
   },
 
   plugins: [
+
+    /*
+     * Plugin: ExtractTextPlugin
+     * Description: Defined above.
+     */
     extractCSS,
+
     /*
      * Plugin: CommonsChunkPlugin
      * Description: Shares common code between the pages.
@@ -158,11 +189,6 @@ module.exports = {
      */
     new NamedModulesPlugin(),
 
-    // Todo: config is not loading.
-    new TsConfigPathsPlugin({
-      configFileName: helpers.root("tsconfig-demo.json")
-    }),
-
     /**
      * Plugin: ContextReplacementPlugin
      * Description: Provides context to Angular's use of System.import
@@ -173,9 +199,13 @@ module.exports = {
     new webpack.ContextReplacementPlugin(
       // The (\\|\/) piece accounts for path separators in *nix and Windows
       /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
-      helpers.root('src') // location of your src
+      root('src') // location of your src
     ),
 
+    /**
+     * Plugin: TypedocWebpackPlugin
+     * Description: Builds the HTML documentation for the library.
+     */
     new TypedocWebpackPlugin({
       name: 'PatternFly NG',
       mode: 'file',

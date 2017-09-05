@@ -138,7 +138,7 @@ gulp.task('inline-template', ['transpile-less'], function () {
 gulp.task('copy-root', function () {
   return gulp.src([
     'index.ts',
-    'patternfly-ng.module.ts'
+    'osio-ngx-framework.module.ts'
   ])
     .pipe(gulp.dest(libraryBuild));
 });
@@ -163,7 +163,7 @@ gulp.task('copy-examples', function () {
 
 gulp.task('copy-static-assets', function () {
   return gulp.src([
-    'LICENSE',
+    'LICENSE.txt',
     'README.md'
   ])
     .pipe(gulp.dest(libraryDist));
