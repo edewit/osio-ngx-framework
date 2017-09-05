@@ -16,7 +16,7 @@
     "build:copy-examples": "gulp copy-examples",
     "start": "webpack-dev-server --config config/webpack.demo.js --progress --host 0.0.0.0 --port 8001 --profile --watch --content-base dist-demo",
     "test": "karma start config/karma.conf.js",
-    "semantic-release": "semantic-release pre && copy package.json dist && npm publish && semantic-release post",
+    "semantic-release": "semantic-release pre && cp package.json dist && npm publish && semantic-release post",
     "semantic-release:pre": "semantic-release pre",
     "semantic-release:post": "semantic-release post"
   },
