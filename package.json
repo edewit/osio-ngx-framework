@@ -177,8 +177,8 @@
     "webpack-validator": "2.3.0"
   },
   "release": {
-    "branch": "master-dist",
-    "debug": true
+    "branch": "master",
+    "debug": false
   },
   "config": {
     "commitizen": {
