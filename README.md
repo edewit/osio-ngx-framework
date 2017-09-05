@@ -1,3 +1,4 @@
+# osio-ngx-framework
 
 Welcome to osio-ngx-framework.  This is a library of common Angular components for use with the OSIO implementation. Below is information on how to get started using osio-ngx-framework.  If you wish to contribute to osio-ngx-framework, please go to our [Contributions page][contributing].
 
