@@ -29,6 +29,9 @@
       "dom"
     ]
   },
+  "files": [
+    "build/index.ts"
+  ],
   "awesomeTypescriptLoaderOptions": {
     "forkChecker": true,
     "useWebpackText": true

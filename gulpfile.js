@@ -115,7 +115,7 @@ gulp.task('build',
   ]);
 
 gulp.task('transpile', ['copy-root', 'inline-template'], function () {
-  return ngc('tsconfig.json');
+  return ngc('tsconfig-build.json');
 });
 
 gulp.task('inline-template', ['transpile-less'], function () {
