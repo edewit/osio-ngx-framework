@@ -6,7 +6,7 @@
   "module": "index.js",
   "typings": "index.d.ts",
   "scripts": {
-    "clean": "npm cache clean && npm-run-all --serial clean:dist clean:deps",
+    "clean": "npm-run-all --serial clean:dist clean:deps",
     "clean:dist": "rimraf doc build coverage bundles dist dist-watch dist-demo",
     "clean:deps": "rimraf node_modules",
     "reinstall": "npm run clean && npm install",
