@@ -40,5 +40,12 @@
   },
   "compileOnSave": false,
   "buildOnSave": false,
-  "atom": { "rewriteTsconfig": false }
+  "atom": { 
+    "rewriteTsconfig": false 
+  },
+  "exclude": [
+    "dist",
+    "dist-demo",
+    "node_modules"
+  ]
 }
