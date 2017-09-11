@@ -12,6 +12,8 @@ import { AppRoutingModule } from './app-routing.module';
 // Main areas
 //  import example modules
 import { SampleExampleModule } from '../app/sample/examples/sample-example.module';
+import { FooterExampleModule } from '../app/footer/examples/footer-example.module';
+
 import { WelcomeComponent } from './components/welcome.component';
 
 @NgModule({
@@ -21,6 +23,7 @@ import { WelcomeComponent } from './components/welcome.component';
     FormsModule,
     HttpModule,
     SampleExampleModule,
+    FooterExampleModule
   ],
   declarations: [
     AppComponent,
