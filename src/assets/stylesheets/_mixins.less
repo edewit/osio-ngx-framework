@@ -1,3 +1,5 @@
+/* stylelint-disable */
+/* do not include these patterns due to required use of !important */
 .padding-loop (@i) when (@i > 0) {
   .padding-@{i} {
     padding: ~"@{i}px" !important;
@@ -38,3 +40,4 @@
 
 .margin-loop(15);
 .padding-loop(15);
+/* stylelint-enable */

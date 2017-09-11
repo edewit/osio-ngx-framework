@@ -100,6 +100,20 @@ function minifyTemplate(file) {
  * TASKS
  */
 
+// stylelint
+gulp.task('lint-less', function lintLessTask() {
+  const gulpStylelint = require ('gulp-stylelint');
+
+  return gulp
+  .src('src/**/*.less')
+  .pipe(gulpStylelint({
+    failAfterError: false,
+    reporters: [
+    {formatter: 'string', console: true}
+    ]
+  }));
+});
+
 //Less compilation and minifiction - adopted from sass compilation, needs work
 gulp.task('transpile-less', function () {
   return transpileLESS(appSrc + '/**/*.less');
@@ -108,6 +122,7 @@ gulp.task('transpile-less', function () {
 // Put the files back to normal
 gulp.task('build',
   [
+    'lint-less',
     'transpile',
     'copy-css',
     'copy-html',
@@ -178,10 +193,10 @@ gulp.task('copy-watch-all', ['build'], function() {
 });
 
 gulp.task('watch', ['build', 'copy-watch-all'], function () {
-  gulp.watch([appSrc + '/app/**/*.ts', '!' + appSrc + '/app/**/*.spec.ts'], ['transpile', 'post-transpile', 'copy-watch']).on('change', function (e) {
+  gulp.watch([appSrc + '/app/**/*.ts', '!' + appSrc + '/app/**/*.spec.ts'], ['lint-less', 'transpile', 'post-transpile', 'copy-watch']).on('change', function (e) {
     console.log('TypeScript file ' + e.path + ' has been changed. Compiling.');
   });
-  gulp.watch([appSrc + '/app/**/*.css']).on('change', function (e) {
+  gulp.watch([appSrc + '/app/**/*.less']).on('change', function (e) {
     console.log(e.path + ' has been changed. Updating.');
     transpileLESS(e.path);
     updateWatchDist();
