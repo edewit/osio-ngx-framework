@@ -1,5 +1,3 @@
-// import './rxjs-extensions';
-
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
@@ -9,10 +7,10 @@ import { HttpModule } from '@angular/http';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
-// Main areas
-//  import example modules
+// Example modules
 import { SampleExampleModule } from '../app/sample/examples/sample-example.module';
 import { FooterExampleModule } from '../app/footer/examples/footer-example.module';
+import { HeaderExampleModule } from '../app/header/examples/header-example.module';
 
 import { WelcomeComponent } from './components/welcome.component';
 
@@ -23,7 +21,8 @@ import { WelcomeComponent } from './components/welcome.component';
     FormsModule,
     HttpModule,
     SampleExampleModule,
-    FooterExampleModule
+    FooterExampleModule,
+    HeaderExampleModule
   ],
   declarations: [
     AppComponent,
