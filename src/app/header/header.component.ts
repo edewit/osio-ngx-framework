@@ -1,20 +1,22 @@
 import { Subscription, Observable } from 'rxjs';
 
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 
-import { Broadcaster, Logger } from 'ngx-base';
+import { Logger } from 'ngx-base';
 import { UserService, User } from 'ngx-login-client';
-import { ContextType, Context, Contexts } from 'ngx-fabric8-wit';
+import { ContextType, Context } from 'ngx-fabric8-wit';
 
 import { HeaderService } from "./header.service";
 import { MenuItem } from './menu-item';
 import { MenuedContextType } from './menued-context-type';
 import { SystemStatus } from "./system-status";
 
+/*
 interface MenuHiddenCallback {
   (headerComponent: HeaderComponent): Observable<boolean>;
 }
+*/
 
 @Component({
   selector: 'osio-app-header',
