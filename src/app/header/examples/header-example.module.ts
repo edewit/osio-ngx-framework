@@ -19,6 +19,6 @@ import { HeaderExampleComponent } from './header-example.component';
   exports: [ HeaderExampleComponent ],
   providers: [ TabsetConfig ]
 })
-export class FooterExampleModule {
+export class HeaderExampleModule {
   constructor() {}
 }

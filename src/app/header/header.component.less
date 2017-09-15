@@ -1,9 +1,20 @@
-@import (reference) '../../../assets/stylesheets/shared/osio.less';
-.view-width-100 { width: 100vw !important; }
+@import (reference) '../../assets/stylesheets/patternfly-ng.less';
+
+/* Some helper definitions */
+.pointer {
+  cursor: pointer;
+}
+
+.view-width-100 { 
+  width: 100vw !important; 
+}
+
 .container-fluid {
   padding-right: 0;
   padding-left: 0;
 }
+
+/* Main navigation header styles */
 .nav {
   .open {
     > .dropdown-menu {

@@ -8,22 +8,98 @@
   <div class="row">
     <div class="col-sm-12">
       <div class="form-group">
-        <osio-app-header></osio-app-header>
+        <osio-app-header 
+          [noFollowLinks]="true"
+          [user]="loggedInUser" 
+          [currentContext]="currentContext" 
+          [recentContexts]="recentContexts"
+          [systemStatus]="systemStatus"
+          (onSelectRecentContext)="onSelectRecentContext($event)"
+          (onSelectViewAllSpaces)="onSelectViewAllSpaces($event)"
+          (onSelectAccountHome)="onSelectAccountHome($event)"
+          (onSelectCreateSpace)="onSelectCreateSpace($event)"
+          (onSelectSystemHealth)="onSelectSystemHealth($event)"
+          (onSelectMenuItem)="onSelectMenuItem($event)"
+          (onSelectUserProfile)="onSelectUserProfile($event)"
+          (onSelectLogout)="onSelectLogout($event)"
+          (onSelectLogin)="onSelectLogin($event)"
+          (onSelectAbout)="onSelectAbout($event)"
+          (onFollowedLink)="onFollowedLink($event)">
+        </osio-app-header>
       </div>
     </div>
   </div>
-  <div class="row padding-bottom-15 padding-top-15">
+  <div class="row padding-top-15">
+      <div class="col-xs-12">
+        <h4>Component Events</h4>
+        <hr/>
+      </div>
+    </div>
+  <div class="row">
+    <div class="col-sm-12 header-form">
+      <div class="col-sm-3 padding-bottom-15">
+        <span class="event-label">onSelectViewAllSpaces:&nbsp;</span><span class="event-value-onoff" [class.event-active]="selectViewAllSpacesEventText">clicked</span>
+      </div>
+      <div class="col-sm-3 padding-bottom-15">
+        <span class="event-label">onSelectAccountHome:&nbsp;</span><span class="event-value-onoff" [class.event-active]="selectAccountHomeEventText">clicked</span>
+      </div>
+      <div class="col-sm-3 padding-bottom-15">
+        <span class="event-label">onSelectCreateSpace:&nbsp;</span><span class="event-value-onoff" [class.event-active]="selectCreateSpaceEventText">clicked</span>
+      </div>
+      <div class="col-sm-3 padding-bottom-15">
+          <span class="event-label">onSelectUserProfile:&nbsp;</span><span class="event-value-onoff" [class.event-active]="selectUserProfileEventText">clicked</span>
+      </div>
+      <div class="col-sm-3 padding-bottom-15">
+        <span class="event-label">onSelectLogout:&nbsp;</span><span class="event-value-onoff" [class.event-active]="selectLogoutEventText">clicked</span>
+      </div>
+      <div class="col-sm-3 padding-bottom-15">
+        <span class="event-label">onSelectLogin:&nbsp;</span><span class="event-value-onoff" [class.event-active]="selectLoginEventText">clicked</span>
+      </div>
+      <div class="col-sm-3 padding-bottom-15">
+          <span class="event-label">onSelectAbout:&nbsp;</span><span class="event-value-onoff" [class.event-active]="selectAboutEventText">clicked</span>
+      </div>
+      <div class="col-sm-3 padding-bottom-15">
+          <span class="event-label">followedLink:&nbsp;</span><span>{{followedLinkText}}</span>
+      </div>
+    </div>
+  </div>
+  <div class="row padding-bottom-15">
+    <div class="col-sm-12 header-form">  
+      <div class="col-sm-6">
+        <span class="event-label">onSelectRecentContext:&nbsp;</span><textarea readonly class="event-textarea">{{selectRecentContextEventText}}</textarea>
+      </div>
+      <div class="col-sm-6">
+        <span class="event-label">onSelectMenuItem:&nbsp;</span><textarea readonly class="event-textarea">{{selectMenuItemEventText}}</textarea>
+      </div>
+    </div>
+  </div>
+  <div class="row">
     <div class="col-xs-12">
       <h4>Component Options</h4>
       <hr/>
     </div>
   </div>
-  <div class="row">
-    <div class="col-sm-12 sample-form">
-      No component options.
+  <div class="row padding-bottom-15">
+    <div class="col-sm-12 header-form">
+      <div class="col-sm-3">
+        <p><span class="input-label">loggedInUser</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="loggedInUser=parseJSON(loggedInUserText)">Update</button></p>
+        <textarea class="input-textarea input-loggedInUser" [(ngModel)]="loggedInUserText"></textarea>
+      </div>
+      <div class="col-sm-3">
+        <p><span class="input-label">currentContext</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="currentContext=parseJSON(currentContextText)">Update</button></p>
+        <textarea class="input-textarea input-currentContext" [(ngModel)]="currentContextText"></textarea>
+      </div>
+      <div class="col-sm-3">
+        <p><span class="input-label">recentContexts</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="recentContexts=parseJSON(recentContextsText)">Update</button></p>
+        <textarea class="input-textarea input-recentContexts" [(ngModel)]="recentContextsText"></textarea>
+      </div>
+      <div class="col-sm-3">
+        <p><span class="input-label">systemStatus</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="systemStatus=parseJSON(systemStatusText)">Update</button></p>
+        <textarea class="input-textarea input-systemStatus" [(ngModel)]="systemStatusText"></textarea>
+      </div>
     </div>
   </div>
-  <div class="row padding-bottom-15 padding-top-15">
+  <div class="row">
     <div class="col-xs-12">
       <h4>Code</h4>
       <hr/>
