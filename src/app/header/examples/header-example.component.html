@@ -120,10 +120,10 @@
         <textarea class="input-textarea input-recentContexts" [(ngModel)]="recentContextsServiceText"></textarea>
       </div>
       <div class="col-sm-3">
-        <p><span class="input-label">persistSystemState</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.persistSystemState(parseJSON(systemStatusServiceText))">Update</button></p>
+        <p><span class="input-label">persistSystemStatus</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.persistSystemStatus(parseJSON(systemStatusServiceText))">Update</button></p>
         <textarea class="input-textarea input-systemStatus" [(ngModel)]="systemStatusServiceText"></textarea>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-3 margin-top-15">
         <p><span class="input-label">clear storage</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.clear()">Clear</button></p>
       </div>
     </div>

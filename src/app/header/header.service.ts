@@ -10,6 +10,7 @@ import { Logger } from 'ngx-base';
 import { MenuItem } from './menu-item';
 import { SystemStatus } from './system-status';
 import { MenuedContextType } from './menued-context-type';
+import { Router } from "@angular/router/router";
 
 @Injectable()
 export class HeaderService {
@@ -17,7 +18,7 @@ export class HeaderService {
   private KEY_CURRENT_CONTEXT: string = "CURRENT_CONTEXT";
   private KEY_RECENT_CONTEXTS: string = "RECENT_CONTEXTS";
   private KEY_USER: string = "USER";
-  private KEY_SYSTEM_STATE: string = "SYSTEM_STATE";
+  private KEY_SYSTEM_STATUS: string = "SYSTEM_STATUS";
   
   private currentContextSource: BehaviorSubject<Context>;
   private currentContextSource$: Observable<Context>;
@@ -25,8 +26,8 @@ export class HeaderService {
   private recentContextsSource$: Observable<Context[]>;
   private userSource: BehaviorSubject<User>;
   private userSource$: Observable<User>;
-  private systemStateSource: BehaviorSubject<SystemStatus[]>;
-  private systemStateSource$: Observable<SystemStatus[]>;
+  private systemStatusSource: BehaviorSubject<SystemStatus[]>;
+  private systemStatusSource$: Observable<SystemStatus[]>;
   
   constructor(private logger: Logger) {
     this.logger.log("[HeaderService] initialized.");
@@ -124,15 +125,15 @@ export class HeaderService {
 
   /**
    * This stores the given data across web applications using localStorage.
-   * Listeners subscribed to the matching @retrieveSystemState() are 
+   * Listeners subscribed to the matching @retrieveSystemStatus() are 
    * notified of the new stored value.
-   * @param systemState data to be stored.
+   * @param systemStatus data to be stored.
    */
-  public persistSystemState(systemState: SystemStatus[]) {
-    this.logger.log("[HeaderService] Stored systemState");
-    this.persist(this.KEY_SYSTEM_STATE, systemState);    
+  public persistSystemStatus(systemStatus: SystemStatus[]) {
+    this.logger.log("[HeaderService] Stored systemStatus");
+    this.persist(this.KEY_SYSTEM_STATUS, systemStatus);    
     // notify subscribers
-    this.retrieveSystemState();
+    this.retrieveSystemStatus();
   }
 
   /**
@@ -140,18 +141,18 @@ export class HeaderService {
    * will immediately being sent, so clients can expect the
    * current value.
    */
-  public retrieveSystemState(): Observable<SystemStatus[]> {
-    this.logger.log("[HeaderService] Retrieved systemState");
-    let systemState = this.retrieve(this.KEY_SYSTEM_STATE) as SystemStatus[];
-    if (!this.systemStateSource) {
-      this.logger.log("[HeaderService] Creating new BehaviourSubject for systemState");
-      this.systemStateSource = new BehaviorSubject<SystemStatus[]>(systemState);
-      this.systemStateSource$ = this.systemStateSource.asObservable();
+  public retrieveSystemStatus(): Observable<SystemStatus[]> {
+    this.logger.log("[HeaderService] Retrieved systemStatus");
+    let systemStatus = this.retrieve(this.KEY_SYSTEM_STATUS) as SystemStatus[];
+    if (!this.systemStatusSource) {
+      this.logger.log("[HeaderService] Creating new BehaviourSubject for systemStatus");
+      this.systemStatusSource = new BehaviorSubject<SystemStatus[]>(systemStatus);
+      this.systemStatusSource$ = this.systemStatusSource.asObservable();
     } else {
-      this.logger.log("[HeaderService] Sending out new systemState to subscribers");
-      this.systemStateSource.next(systemState);
+      this.logger.log("[HeaderService] Sending out new systemStatus to subscribers");
+      this.systemStatusSource.next(systemStatus);
     }
-    return this.systemStateSource$;
+    return this.systemStatusSource$;
   }
 
   /**
@@ -187,6 +188,16 @@ export class HeaderService {
     } else {
       this.logger.log("[HeaderService] Current context has no menus or is empty, no submenu replaced.");      
     }
+  }
+
+  public routeToInternal(menuItem: MenuItem, router: Router) {
+    this.logger.log("[HeaderService] Routing to internal route path: " + menuItem.fullPath);      
+    router.navigate([menuItem.fullPath]);
+  }
+
+  public routeToExternal(menuItem: MenuItem, window: Window) {
+    this.logger.log("[HeaderService] Routing to external route path: " + menuItem.fullPath);      
+    window.location.href = menuItem.fullPath;
   }
 
   // stores a given data in the localStorage. This is domain/port/protocol

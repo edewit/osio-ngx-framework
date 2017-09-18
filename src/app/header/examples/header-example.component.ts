@@ -153,7 +153,7 @@ export class HeaderExampleComponent {
       this.recentContextsServiceText = JSON.stringify(value)
       this.recentContextsText = JSON.stringify(value);
     });
-    headerService.retrieveSystemState().subscribe(value => { 
+    headerService.retrieveSystemStatus().subscribe(value => { 
       this.systemStatusServiceText = JSON.stringify(value)
       this.systemStatusText = JSON.stringify(value);
     });

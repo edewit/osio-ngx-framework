@@ -1,7 +1,7 @@
 import { Subscription, Observable } from 'rxjs';
 
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 
 import { Logger } from 'ngx-base';
 import { UserService, User } from 'ngx-login-client';
@@ -41,9 +41,9 @@ interface MenuHiddenCallback {
   styleUrls: ['./header.component.less'],
   providers: []
 })
-export class HeaderComponent implements OnChanges, OnInit { // implements OnInit, OnDestroy {
+export class HeaderComponent implements OnChanges, OnInit, OnDestroy { // implements OnInit, OnDestroy {
 
-  // if this is set to false or is unset, the component will not 
+  // if this is set to false or is unset, the component will not
   // automatically follow MenuItem.fullPath or MenuItem.extUrl 
   // links. The event is emitted in both cases, so if this is 
   // set to false or is unset, the enclosing component has to 
@@ -109,8 +109,12 @@ export class HeaderComponent implements OnChanges, OnInit { // implements OnInit
   // this prevents changes to the @Input values until the service is being started
   private changesEnabled = false;
 
+  // the event listeners for listening to url changes to update menu states
+  private eventListeners: any[] = [];
+
   constructor(
     private router: Router,
+    public route: ActivatedRoute,
     private logger: Logger,
     private headerService: HeaderService
   ) {
@@ -147,7 +151,7 @@ export class HeaderComponent implements OnChanges, OnInit { // implements OnInit
       this.systemStatus = newSystemStatus;
       this.logger.log("[HeaderComponent] syncing detected changes to newSystemStatus to persistence storage.");
       if (this.changesEnabled)
-        this.headerService.persistSystemState(this.systemStatus);      
+        this.headerService.persistSystemStatus(this.systemStatus);      
     } else {
       this.logger.log("[HeaderComponent] detected changes to unknown attribute: " + JSON.stringify(changes));
     }
@@ -178,14 +182,14 @@ export class HeaderComponent implements OnChanges, OnInit { // implements OnInit
         this.headerService.persistRecentContexts(this.recentContexts);
       }
     });
-    this.headerService.retrieveSystemState().subscribe(value => {
-      this.logger.log("[HeaderComponent] incoming service change to systemState: " + JSON.stringify(value));
+    this.headerService.retrieveSystemStatus().subscribe(value => {
+      this.logger.log("[HeaderComponent] incoming service change to systemStatus: " + JSON.stringify(value));
       if (value) {
-        this.logger.log("[HeaderComponent] set service change to systemState.");
+        this.logger.log("[HeaderComponent] set service change to systemStatus.");
         this.systemStatus = value
       } else {
-        this.logger.log("[HeaderComponent] service change to systemState are nil, not setting them.");        
-        this.headerService.persistSystemState(this.systemStatus);
+        this.logger.log("[HeaderComponent] service change to systemStatus are nil, not setting them.");        
+        this.headerService.persistSystemStatus(this.systemStatus);
       }
     });
     this.headerService.retrieveUser().subscribe(value => {
@@ -202,6 +206,30 @@ export class HeaderComponent implements OnChanges, OnInit { // implements OnInit
     // should have precedence while still being able to detect changes to the @Input attributes.
     // TODO: persist everything
     this.changesEnabled = true;
+    // subscribe to changes to the url address to update the menu state
+    this.eventListeners.push(
+      this.router.events.subscribe((val) => {
+        if (val instanceof NavigationEnd) {
+          this.updateMenuActiveState();
+        }
+      })
+    );
+    // update the menu active state from the url on init
+    this.updateMenuActiveState();
+  }
+
+  ngOnDestroy() {
+    this.eventListeners.forEach(e => e.unsubscribe());
+  }
+
+  // this retrieves the current url of the browser and sets the
+  // matching MenuItem in currentContext to active, selecting it.
+  // This allows for deep links to arbitrary menu selections.
+  private updateMenuActiveState(): any {
+    let url = this.router.url;
+    this.logger.log("[HeaderComponent] updating menu state from current url: " + url);
+    // decodeURIComponent(url), this.router.url === '/_home'
+    this.logger.log("[HeaderComponent] WARNING: URL MANU UPDATE NOT YET IMPLEMENTED.");
   }
 
   // sets a new context; will also be called from
@@ -290,7 +318,7 @@ export class HeaderComponent implements OnChanges, OnInit { // implements OnInit
 
   private secondaryMenuSelect(menuItem: MenuItem) {
     this.goTo(menuItem);
-    // [routerLink]="[n.fullPath]" [queryParams]="plannerFollowQueryParams"
+    // TODO: this may need to also send [queryParams]="plannerFollowQueryParams"
     this.logger.log("[HeaderComponent] selected submenu: " + menuItem.name);
     this.onSelectMenuItem.emit(menuItem);
   }
@@ -311,7 +339,7 @@ export class HeaderComponent implements OnChanges, OnInit { // implements OnInit
       // TODO: store all data to localStorage
       if (this.followLinks) {
         this.logger.log("[HeaderComponent] routing to external url " + menuItem.extUrl);
-        window.location.href = menuItem.fullPath;
+        this.headerService.routeToExternal(menuItem, window);
       } else {
         this.logger.log("[HeaderComponent] followLinks is false or unset, skipping routing to external url " + menuItem.extUrl);
       }
@@ -321,7 +349,7 @@ export class HeaderComponent implements OnChanges, OnInit { // implements OnInit
       this.onFollowedLink.emit("[router] " + menuItem.fullPath);
       if (this.followLinks) {
         this.logger.log("[HeaderComponent] routing to internal route " + menuItem.fullPath);
-        this.router.navigate([menuItem.fullPath]);
+        this.headerService.routeToInternal(menuItem, this.router);
       } {
         this.logger.log("[HeaderComponent] followLinks is false or unset, skipping routing to external url " + menuItem.extUrl);        
       }
@@ -329,123 +357,6 @@ export class HeaderComponent implements OnChanges, OnInit { // implements OnInit
   }
 
   /*
-  recent: Context[];
-  private _context: Context;
-  private _defaultContext: Context;
-
-  title = 'Almighty';
-  imgLoaded: Boolean = false;
-  statusListVisible = false;
-
-  onStatusListVisible = (flag: boolean) => {
-    this.statusListVisible = flag;
-  };
-
-  menuCallbacks = new Map<String, MenuHiddenCallback>([
-    [
-      '_settings', function (headerComponent) {
-        return headerComponent.checkContextUserEqualsLoggedInUser();
-      }
-    ],
-    [
-      '_resources', function (headerComponent) {
-        return headerComponent.checkContextUserEqualsLoggedInUser();
-      }
-    ],
-    [
-      'settings', function (headerComponent) {
-        return headerComponent.checkContextUserEqualsLoggedInUser();
-      }
-    ]
-  ]);
-
-  private _loggedInUserSubscription: Subscription;
-  private plannerFollowQueryParams: Object = {};
-  private eventListeners: any[] = [];
-
-  constructor(
-    public router: Router,
-    public route: ActivatedRoute,
-    private userService: UserService,
-    private logger: Logger,
-    public loginService: LoginService,
-    private broadcaster: Broadcaster,
-    private contexts: Contexts
-  ) {
-    router.events.subscribe((val) => {
-      if (val instanceof NavigationEnd) {
-        this.broadcaster.broadcast('navigate', { url: val.url } as Navigation);
-        this.updateMenus();
-      }
-    });
-    contexts.current.subscribe(val => {
-      this._context = val;
-      this.updateMenus();
-    });
-    contexts.default.subscribe(val => {
-      this._defaultContext = val;
-    })
-    contexts.recent.subscribe(val => this.recent = val);
-
-    // Currently logged in user
-    this.userService.loggedInUser.subscribe(
-      val => {
-        if (val.id) {
-          this.loggedInUser = val;
-        } else {
-          this.resetData();
-          this.loggedInUser = null;
-        }
-      }
-    );
-  }
-
-  ngOnInit(): void {
-    this.listenToEvents();
-  }
-
-  ngOnDestroy() {
-    this.eventListeners.forEach(e => e.unsubscribe());
-  }
-
-
-  listenToEvents() {
-    this.eventListeners.push(
-      this.route.queryParams.subscribe(params => {
-        this.plannerFollowQueryParams = {};
-        if (Object.keys(params).indexOf('iteration') > -1) {
-          this.plannerFollowQueryParams['iteration'] = params['iteration'];
-        }
-      })
-    );
-  }
-
-  login() {
-    this.broadcaster.broadcast('login');
-    this.loginService.redirectToAuth();
-  }
-
-  logout() {
-    this.loginService.logout();
-
-  }
-
-  onImgLoad() {
-    this.imgLoaded = true;
-  }
-
-  resetData(): void {
-    this.imgLoaded = false;
-  }
-
-  get context(): Context {
-    if (this.router.url === '/_home') {
-      return this._defaultContext;
-    } else {
-      return this._context;
-    }
-  }
-
   private updateMenus() {
     if (this.context && this.context.type && this.context.type.hasOwnProperty('menus')) {
       let foundPath = false;
@@ -506,14 +417,6 @@ export class HeaderComponent implements OnChanges, OnInit { // implements OnInit
         }
       }
     }
-  }
-
-  private checkContextUserEqualsLoggedInUser(): Observable<boolean> {
-    return Observable.combineLatest(
-      Observable.of(this.context).map(val => val.user.id),
-      this.userService.loggedInUser.map(val => val.id),
-      (a, b) => (a !== b)
-    );
   }
   */
 }
