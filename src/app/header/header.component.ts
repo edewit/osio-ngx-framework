@@ -35,7 +35,7 @@ import { SystemStatus } from "./system-status";
   styleUrls: ['./header.component.less'],
   providers: []
 })
-export class HeaderComponent implements OnChanges, OnInit, OnDestroy { // implements OnInit, OnDestroy {
+export class HeaderComponent implements OnChanges, OnInit, OnDestroy { 
 
   // if this is set to false or is unset, the component will not
   // automatically follow MenuItem.fullPath or MenuItem.extUrl 
