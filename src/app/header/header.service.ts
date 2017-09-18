@@ -190,11 +190,21 @@ export class HeaderService {
     }
   }
 
+  /**
+   * This routes to an internal path based on the given MenuItem.
+   * @param menuItem MenuItem that carries the fullPath to navigated to.
+   * @param router Router for navigating.
+   */
   public routeToInternal(menuItem: MenuItem, router: Router) {
     this.logger.log("[HeaderService] Routing to internal route path: " + menuItem.fullPath);      
     router.navigate([menuItem.fullPath]);
   }
 
+  /**
+   * This navigates to an external url based on the given MenuItem.
+   * @param menuItem MenuItem that carries the fullPath to navigated to.
+   * @param window Window instance to be used for navigating.
+   */
   public routeToExternal(menuItem: MenuItem, window: Window) {
     this.logger.log("[HeaderService] Routing to external route path: " + menuItem.fullPath);      
     window.location.href = menuItem.fullPath;
