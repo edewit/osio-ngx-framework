@@ -28,6 +28,12 @@ interface MenuHiddenCallback {
  * The overall goal is to create a component that works like any other Angular
  * component but across application boundaries - it should preserve it's data on
  * application switches as it would be doing it in a single SPA.
+ * 
+ * Values in the attributes at init time are getting ignored when there are values
+ * stored in localStorage. Or in other words: values in localStorage always take 
+ * precedence over local attribute values to the component. If you need to update the
+ * values, use either the attributes or the headerService. Both ways work either way,
+ * always storing changes in localStorage immediately.
  */
 @Component({
   selector: 'osio-app-header',
@@ -35,7 +41,7 @@ interface MenuHiddenCallback {
   styleUrls: ['./header.component.less'],
   providers: []
 })
-export class HeaderComponent implements OnChanges { // implements OnInit, OnDestroy {
+export class HeaderComponent implements OnChanges, OnInit { // implements OnInit, OnDestroy {
 
   // if this is set to true, the component will not automatically
   // follow MenuItem.fullPath or MenuItem.extUrl links. The event
@@ -105,11 +111,6 @@ export class HeaderComponent implements OnChanges { // implements OnInit, OnDest
     private headerService: HeaderService
   ) {
     this.logger.log("[HeaderComponent] initialized.");
-    // listen to incoming updates from the service
-    headerService.retrieveCurrentContext().subscribe(value => this.setCurrentContext(value));
-    headerService.retrieveRecentContexts().subscribe(value => this.recentContexts = value);
-    headerService.retrieveSystemState().subscribe(value => { console.log('############### RECEIVED IN COMPONENT'); this.systemStatus = value });
-    headerService.retrieveUser().subscribe(value => this.user = value);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -142,6 +143,15 @@ export class HeaderComponent implements OnChanges { // implements OnInit, OnDest
     } else {
       this.logger.log("[HeaderComponent] detected changes to unknown attribute: " + JSON.stringify(changes));
     }
+  }
+
+  // this is called after the first ngOnChanges() is called.
+  ngOnInit(): void {
+    // listen to incoming updates from the service
+    this.headerService.retrieveCurrentContext().subscribe(value => this.setCurrentContext(value));
+    this.headerService.retrieveRecentContexts().subscribe(value => this.recentContexts = value);
+    this.headerService.retrieveSystemState().subscribe(value => this.systemStatus = value);
+    this.headerService.retrieveUser().subscribe(value => this.user = value);
   }
 
   // sets a new context; will also be called from
