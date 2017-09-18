@@ -18,6 +18,17 @@ interface MenuHiddenCallback {
 }
 */
 
+/*
+ * This is a re-usable header component that is able to persist the state
+ * of all involved data on page reloads (or application switches on the same
+ * domain). It uses localStorage for this. Goals were:
+ *  - make the component as non-semantic as possible given the existing data structure.
+ *  - make the component rely on event behaviour of enclosing components.
+ *  - make the storage of the data as transaprent as possible for enclosing components.
+ * The overall goal is to create a component that works like any other Angular
+ * component but across application boundaries - it should preserve it's data on
+ * application switches as it would be doing it in a single SPA.
+ */
 @Component({
   selector: 'osio-app-header',
   templateUrl: './header.component.html',
@@ -35,7 +46,7 @@ export class HeaderComponent implements OnChanges { // implements OnInit, OnDest
   
   // user logged in
   @Input("user")
-  private loggedInUser: User;
+  private user: User;
 
   // current context
   @Input("currentContext")
@@ -94,6 +105,11 @@ export class HeaderComponent implements OnChanges { // implements OnInit, OnDest
     private headerService: HeaderService
   ) {
     this.logger.log("[HeaderComponent] initialized.");
+    // listen to incoming updates from the service
+    headerService.retrieveCurrentContext().subscribe(value => this.setCurrentContext(value));
+    headerService.retrieveRecentContexts().subscribe(value => this.recentContexts = value);
+    headerService.retrieveSystemState().subscribe(value => { console.log('############### RECEIVED IN COMPONENT'); this.systemStatus = value });
+    headerService.retrieveUser().subscribe(value => this.user = value);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -101,8 +117,30 @@ export class HeaderComponent implements OnChanges { // implements OnInit, OnDest
       // current context has changed, we need to update the menu,
       // setting the new context to the active menu.
       let newContext: Context = changes.currentContext.currentValue;
-      this.logger.log("[HeaderComponent] detected changes to current context: " + newContext.name);
+      this.logger.log("[HeaderComponent] detected changes to currentContext: " + newContext.name);
       this.setCurrentContext(newContext);
+      this.logger.log("[HeaderComponent] syncing detected changes to currentContext to persistence storage.");
+      this.headerService.persistCurrentContext(this.currentContext);
+    } else if (changes.recentContexts && changes.recentContexts.currentValue) {
+      let newRecentContexts: Context[] = changes.recentContexts.currentValue;
+      this.logger.log("[HeaderComponent] detected changes to recentContexts.");
+      this.recentContexts = newRecentContexts;
+      this.logger.log("[HeaderComponent] syncing detected changes to recentContexts to persistence storage.");
+      this.headerService.persistRecentContexts(this.recentContexts);
+    } else if (changes.user && changes.user.currentValue) {
+      let newUser: User = changes.user.currentValue;
+      this.logger.log("[HeaderComponent] detected changes to user: " + newUser.id);
+      this.user = newUser;
+      this.logger.log("[HeaderComponent] syncing detected changes to user to persistence storage.");
+      this.headerService.persistUser(this.user);      
+    } else if (changes.systemStatus && changes.systemStatus.currentValue) {
+      let newSystemStatus: any = changes.systemStatus.currentValue;
+      this.logger.log("[HeaderComponent] detected changes to systemStatus: " + newSystemStatus.id);
+      this.systemStatus = newSystemStatus;
+      this.logger.log("[HeaderComponent] syncing detected changes to newSystemStatus to persistence storage.");
+      this.headerService.persistSystemState(this.systemStatus);      
+    } else {
+      this.logger.log("[HeaderComponent] detected changes to unknown attribute: " + JSON.stringify(changes));
     }
   }
 
@@ -143,7 +181,7 @@ export class HeaderComponent implements OnChanges { // implements OnInit, OnDest
   private viewAllSpaces() {
     // we only emit the event and let the enclosing component do the routing
     // based on the application configuration.
-    // likely target in production: [routerLink]="[loggedInUser.attributes.username,'_spaces']"
+    // likely target in production: [routerLink]="[user.attributes.username,'_spaces']"
     this.logger.log("[HeaderComponent] selected 'viewAllSpaces'");    
     this.onSelectViewAllSpaces.emit();
   }
@@ -159,13 +197,14 @@ export class HeaderComponent implements OnChanges { // implements OnInit, OnDest
   private userProfile() {
     // we only emit the event and let the enclosing component do the routing
     // based on the application configuration.
-    // likely target in production: [routerLink]="[loggedInUser.attributes.username]"
+    // likely target in production: [routerLink]="[user.attributes.username]"
     this.logger.log("[HeaderComponent] selected 'userProfile'");    
     this.onSelectUserProfile.emit();
   }
 
   private logout() {
-    this.logger.log("[HeaderComponent] selected 'logout'");    
+    this.logger.log("[HeaderComponent] selected 'logout'");
+    // TODO: clear localStorage(?)
     this.onSelectLogout.emit();
   }
 
@@ -209,6 +248,7 @@ export class HeaderComponent implements OnChanges { // implements OnInit, OnDest
     if (menuItem.extUrl) {
       // this is an external URL
       this.onFollowedLink.emit("[external] " + menuItem.extUrl);
+      // TODO: store all data to localStorage
       if (!this.noFollowLinks) {
         this.logger.log("[HeaderComponent] routing to external url " + menuItem.extUrl);
         window.location.href = menuItem.fullPath;

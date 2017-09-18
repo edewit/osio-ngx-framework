@@ -8,6 +8,7 @@ import { Context } from 'ngx-fabric8-wit';
 import { Logger } from 'ngx-base';
 
 import { MenuItem } from './menu-item';
+import { SystemStatus } from './system-status';
 import { MenuedContextType } from './menued-context-type';
 
 @Injectable()
@@ -24,8 +25,8 @@ export class HeaderService {
   private recentContextsSource$: Observable<Context[]>;
   private userSource: BehaviorSubject<User>;
   private userSource$: Observable<User>;
-  private systemStateSource: BehaviorSubject<any>;
-  private systemStateSource$: Observable<any>;
+  private systemStateSource: BehaviorSubject<SystemStatus[]>;
+  private systemStateSource$: Observable<SystemStatus[]>;
   
   constructor(private logger: Logger) {
     this.logger.log("[HeaderService] initialized.");
@@ -69,7 +70,7 @@ export class HeaderService {
    */
   public persistRecentContexts(contexts: Context[]) {
     this.logger.log("[HeaderService] Stored recentContext");
-    this.persist(this.KEY_CURRENT_CONTEXT, contexts);
+    this.persist(this.KEY_RECENT_CONTEXTS, contexts);
     // notify subscribers
     this.retrieveRecentContexts();        
   }
@@ -99,7 +100,7 @@ export class HeaderService {
    */
   public persistUser(user: User) {
     this.logger.log("[HeaderService] Stored user");
-    this.persist(this.KEY_CURRENT_CONTEXT, user);
+    this.persist(this.KEY_USER, user);
     // notify subscribers
     this.retrieveUser();
   }
@@ -127,9 +128,9 @@ export class HeaderService {
    * notified of the new stored value.
    * @param systemState data to be stored.
    */
-  public persistSystemState(systemState: any) {
+  public persistSystemState(systemState: SystemStatus[]) {
     this.logger.log("[HeaderService] Stored systemState");
-    this.persist(this.KEY_CURRENT_CONTEXT, systemState);    
+    this.persist(this.KEY_SYSTEM_STATE, systemState);    
     // notify subscribers
     this.retrieveSystemState();
   }
@@ -139,13 +140,15 @@ export class HeaderService {
    * will immediately being sent, so clients can expect the
    * current value.
    */
-  public retrieveSystemState(): Observable<any> {
+  public retrieveSystemState(): Observable<SystemStatus[]> {
     this.logger.log("[HeaderService] Retrieved systemState");
-    let systemState = this.retrieve(this.KEY_SYSTEM_STATE);
+    let systemState = this.retrieve(this.KEY_SYSTEM_STATE) as SystemStatus[];
     if (!this.systemStateSource) {
-      this.systemStateSource = new BehaviorSubject<any>(systemState);
+      this.logger.log("[HeaderService] Creating new BehaviourSubject for systemState");
+      this.systemStateSource = new BehaviorSubject<SystemStatus[]>(systemState);
       this.systemStateSource$ = this.systemStateSource.asObservable();
     } else {
+      this.logger.log("[HeaderService] Sending out new systemState to subscribers");
       this.systemStateSource.next(systemState);
     }
     return this.systemStateSource$;
@@ -157,6 +160,7 @@ export class HeaderService {
    */
   public clear() {
     localStorage.clear();
+    this.logger.log("[HeaderService] Cleared storage.");
   }
 
   /**
@@ -167,17 +171,21 @@ export class HeaderService {
    */
   public replaceSubMenu(menuId: string, newMenu: MenuItem[]) {
     // get the latest currentContext value
+    this.logger.log("[HeaderService] Replacing submenus for menu id " + menuId);
     let context: Context = this.currentContextSource.getValue();
     if (context) {
       let contextType: MenuedContextType = context.type as MenuedContextType;
       for (let i=0; i<contextType.menus.length; i++) {
         if (contextType.menus[i].id===menuId) {
+          this.logger.log("[HeaderService] Found and replaced submenus for menu id " + menuId);
           // found the matching menu, replace the submenu
           contextType.menus[i].menus = newMenu;
           // and store, notify subscribers
           this.persistCurrentContext(context);
         }
       }
+    } else {
+      this.logger.log("[HeaderService] Current context has no menus or is empty, no submenu replaced.");      
     }
   }
 
@@ -191,7 +199,7 @@ export class HeaderService {
   // serialized using JSON.stringify().
   private persist(key: string, data: any) {
     let text = JSON.stringify(data);
-    this.logger.log("[HeaderService] storing key " + key + " with value " + data);
+    this.logger.log("[HeaderService] storing key " + key + " with value " + text);
     localStorage.setItem(key, text);
   }
 

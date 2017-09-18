@@ -101,6 +101,32 @@
   </div>
   <div class="row">
     <div class="col-xs-12">
+      <h4>Service Options</h4>
+      <hr/>
+    </div>
+  </div>
+  <div class="row padding-bottom-15">
+    <div class="col-sm-12 header-form">
+      <div class="col-sm-3">
+        <p><span class="input-label">persistUser</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.persistUser(parseJSON(loggedInUserServiceText))">Update</button></p>
+        <textarea class="input-textarea input-loggedInUser" [(ngModel)]="loggedInUserServiceText"></textarea>
+      </div>
+      <div class="col-sm-3">
+        <p><span class="input-label">persistCurrentContext</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.persistCurrentContext(parseJSON(currentContextServiceText))">Update</button></p>
+        <textarea class="input-textarea input-currentContext" [(ngModel)]="currentContextServiceText"></textarea>
+      </div>
+      <div class="col-sm-3">
+        <p><span class="input-label">persistRecentContexts</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.persistRecentContexts(parseJSON(recentContextsServiceText))">Update</button></p>
+        <textarea class="input-textarea input-recentContexts" [(ngModel)]="recentContextsServiceText"></textarea>
+      </div>
+      <div class="col-sm-3">
+        <p><span class="input-label">persistSystemState</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.persistSystemState(parseJSON(systemStatusServiceText))">Update</button></p>
+        <textarea class="input-textarea input-systemStatus" [(ngModel)]="systemStatusServiceText"></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12">
       <h4>Code</h4>
       <hr/>
     </div>

@@ -1,10 +1,13 @@
 import {
   Component
 } from '@angular/core';
+
 import { User, Profile } from "ngx-login-client";
 import { Context, ContextType, Space } from "ngx-fabric8-wit";
-import { MenuItem } from "src/app/header/menu-item";
-import { SystemStatus } from "src/app/header/system-status";
+
+import { MenuItem } from "../menu-item";
+import { SystemStatus } from "../system-status";
+import { HeaderService } from "../header.service";
 
 @Component({
   selector: 'header-example',
@@ -78,7 +81,13 @@ export class HeaderExampleComponent {
   recentContextsText: string;
   systemStatusText: string;
   followedLinkText: string;
-  
+
+  loggedInUserServiceText: string;
+  currentContextServiceText: string;
+  recentContextsServiceText: string;
+  systemStatusServiceText: string;
+  followedLinkServiceText: string;
+
   onSelectRecentContext(context: Context) {
     this.selectRecentContextEventText = context?JSON.stringify(context):'isNil';
   }
@@ -130,8 +139,29 @@ export class HeaderExampleComponent {
     return JSON.parse(input);
   }
 
-  constructor() {
+  constructor(private headerService: HeaderService) {
 
+    // listen to changes on the service. If a change is coming in,
+    // update the serviceTexts and update the localTexts. We don't set
+    // the actual values here in the example as they are not used
+    // anymore.
+    headerService.retrieveCurrentContext().subscribe(value => {
+      this.currentContextServiceText = JSON.stringify(value)
+      this.currentContextText = JSON.stringify(value);
+    });
+    headerService.retrieveRecentContexts().subscribe(value => { 
+      this.recentContextsServiceText = JSON.stringify(value)
+      this.recentContextsText = JSON.stringify(value);
+    });
+    headerService.retrieveSystemState().subscribe(value => { 
+      this.systemStatusServiceText = JSON.stringify(value)
+      this.systemStatusText = JSON.stringify(value);
+    });
+    headerService.retrieveUser().subscribe(value => { 
+      this.loggedInUserServiceText = JSON.stringify(value)
+      this.loggedInUserText = JSON.stringify(value);
+    });
+    
     this.loggedInUser = {
       id: 'user-1',
       attributes: {
