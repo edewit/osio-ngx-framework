@@ -43,12 +43,13 @@ interface MenuHiddenCallback {
 })
 export class HeaderComponent implements OnChanges, OnInit { // implements OnInit, OnDestroy {
 
-  // if this is set to true, the component will not automatically
-  // follow MenuItem.fullPath or MenuItem.extUrl links. The event
-  // is emitted in both cases, so if this is set to true, the 
-  // enclosing component has to do the routing based on that events.
-  @Input("noFollowLinks")
-  private noFollowLinks: Boolean;
+  // if this is set to false or is unset, the component will not 
+  // automatically follow MenuItem.fullPath or MenuItem.extUrl 
+  // links. The event is emitted in both cases, so if this is 
+  // set to false or is unset, the enclosing component has to 
+  // do the routing based on that events. Default is false.
+  @Input("followLinks")
+  private followLinks: Boolean = false;
   
   // user logged in
   @Input("user")
@@ -308,21 +309,21 @@ export class HeaderComponent implements OnChanges, OnInit { // implements OnInit
       // this is an external URL
       this.onFollowedLink.emit("[external] " + menuItem.extUrl);
       // TODO: store all data to localStorage
-      if (!this.noFollowLinks) {
+      if (this.followLinks) {
         this.logger.log("[HeaderComponent] routing to external url " + menuItem.extUrl);
         window.location.href = menuItem.fullPath;
       } else {
-        this.logger.log("[HeaderComponent] noFollowLinks is true, skipping routing to external url " + menuItem.extUrl);
+        this.logger.log("[HeaderComponent] followLinks is false or unset, skipping routing to external url " + menuItem.extUrl);
       }
     }
     if (menuItem.fullPath) {
       // this is an internal router link
       this.onFollowedLink.emit("[router] " + menuItem.fullPath);
-      if (!this.noFollowLinks) {
+      if (this.followLinks) {
         this.logger.log("[HeaderComponent] routing to internal route " + menuItem.fullPath);
         this.router.navigate([menuItem.fullPath]);
       } {
-        this.logger.log("[HeaderComponent] noFollowLinks is true, skipping routing to external url " + menuItem.extUrl);        
+        this.logger.log("[HeaderComponent] followLinks is false or unset, skipping routing to external url " + menuItem.extUrl);        
       }
     }
   }
