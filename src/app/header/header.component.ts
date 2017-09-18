@@ -105,6 +105,9 @@ export class HeaderComponent implements OnChanges, OnInit { // implements OnInit
   // active top menu item
   private activeTopLevelMenu: MenuItem;
 
+  // this prevents changes to the @Input values until the service is being started
+  private changesEnabled = false;
+
   constructor(
     private router: Router,
     private logger: Logger,
@@ -121,25 +124,29 @@ export class HeaderComponent implements OnChanges, OnInit { // implements OnInit
       this.logger.log("[HeaderComponent] detected changes to currentContext: " + newContext.name);
       this.setCurrentContext(newContext);
       this.logger.log("[HeaderComponent] syncing detected changes to currentContext to persistence storage.");
-      this.headerService.persistCurrentContext(this.currentContext);
+      if (this.changesEnabled)
+        this.headerService.persistCurrentContext(this.currentContext);
     } else if (changes.recentContexts && changes.recentContexts.currentValue) {
       let newRecentContexts: Context[] = changes.recentContexts.currentValue;
       this.logger.log("[HeaderComponent] detected changes to recentContexts.");
       this.recentContexts = newRecentContexts;
       this.logger.log("[HeaderComponent] syncing detected changes to recentContexts to persistence storage.");
-      this.headerService.persistRecentContexts(this.recentContexts);
+      if (this.changesEnabled)
+        this.headerService.persistRecentContexts(this.recentContexts);
     } else if (changes.user && changes.user.currentValue) {
       let newUser: User = changes.user.currentValue;
       this.logger.log("[HeaderComponent] detected changes to user: " + newUser.id);
       this.user = newUser;
       this.logger.log("[HeaderComponent] syncing detected changes to user to persistence storage.");
-      this.headerService.persistUser(this.user);      
+      if (this.changesEnabled)
+        this.headerService.persistUser(this.user);      
     } else if (changes.systemStatus && changes.systemStatus.currentValue) {
       let newSystemStatus: any = changes.systemStatus.currentValue;
       this.logger.log("[HeaderComponent] detected changes to systemStatus: " + newSystemStatus.id);
       this.systemStatus = newSystemStatus;
       this.logger.log("[HeaderComponent] syncing detected changes to newSystemStatus to persistence storage.");
-      this.headerService.persistSystemState(this.systemStatus);      
+      if (this.changesEnabled)
+        this.headerService.persistSystemState(this.systemStatus);      
     } else {
       this.logger.log("[HeaderComponent] detected changes to unknown attribute: " + JSON.stringify(changes));
     }
@@ -147,11 +154,53 @@ export class HeaderComponent implements OnChanges, OnInit { // implements OnInit
 
   // this is called after the first ngOnChanges() is called.
   ngOnInit(): void {
-    // listen to incoming updates from the service
-    this.headerService.retrieveCurrentContext().subscribe(value => this.setCurrentContext(value));
-    this.headerService.retrieveRecentContexts().subscribe(value => this.recentContexts = value);
-    this.headerService.retrieveSystemState().subscribe(value => this.systemStatus = value);
-    this.headerService.retrieveUser().subscribe(value => this.user = value);
+    // listen to incoming updates from the service, the service will only send a null
+    // value if there is nothing stored in localStorage, never when erasing it (see 
+    // headerService.clear().
+    this.headerService.retrieveCurrentContext().subscribe(value => { 
+      this.logger.log("[HeaderComponent] incoming service change to currentContext: " + JSON.stringify(value));
+      if (value) {
+        this.logger.log("[HeaderComponent] set service change to currentContext.");
+        this.setCurrentContext(value)
+      } else {
+        this.logger.log("[HeaderComponent] service change to currentContext are nil, not setting them.");        
+        this.headerService.persistCurrentContext(this.currentContext);
+      }
+    });
+    this.headerService.retrieveRecentContexts().subscribe(value => {
+      this.logger.log("[HeaderComponent] incoming service change to recentContexts: " + JSON.stringify(value));
+      if (value) {
+        this.logger.log("[HeaderComponent] set service change to recentContexts.");
+        this.recentContexts = value
+      } else {
+        this.logger.log("[HeaderComponent] service change to recentContexts are nil, not setting them.");        
+        this.headerService.persistRecentContexts(this.recentContexts);
+      }
+    });
+    this.headerService.retrieveSystemState().subscribe(value => {
+      this.logger.log("[HeaderComponent] incoming service change to systemState: " + JSON.stringify(value));
+      if (value) {
+        this.logger.log("[HeaderComponent] set service change to systemState.");
+        this.systemStatus = value
+      } else {
+        this.logger.log("[HeaderComponent] service change to systemState are nil, not setting them.");        
+        this.headerService.persistSystemState(this.systemStatus);
+      }
+    });
+    this.headerService.retrieveUser().subscribe(value => {
+      this.logger.log("[HeaderComponent] incoming service change to user: " + JSON.stringify(value));
+      if (value) {
+        this.logger.log("[HeaderComponent] set service change to user.");
+        this.user = value
+      } else {
+        this.logger.log("[HeaderComponent] service change to user are nil, not setting them.");
+        this.headerService.persistUser(this.user);
+      }
+    });
+    // we now allow changes to be propagated. We need this because the localStorage values
+    // should have precedence while still being able to detect changes to the @Input attributes.
+    // TODO: persist everything
+    this.changesEnabled = true;
   }
 
   // sets a new context; will also be called from

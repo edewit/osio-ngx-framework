@@ -207,6 +207,11 @@ export class HeaderService {
   private retrieve(key: string): any {
     let text = localStorage.getItem(key);
     this.logger.log("[HeaderService] retrieved key " + key + " with value " + text);
-    return JSON.parse(text);
+    try {
+      return JSON.parse(text);            
+    } catch (e) {
+      this.logger.log("[HeaderService] retrieved key " + key + " has invalid value " + text);
+      return null;
+    }
   }
 }
