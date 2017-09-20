@@ -212,7 +212,7 @@ export class HeaderExampleComponent {
                   {
                     context: 'someContext0',
                     type: 'internal',
-                    path: '_menuEntry0_1_someContext0'
+                    path: '/header'
                   } as ContextLink,
                   {
                     context: 'someContext1',

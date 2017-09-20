@@ -104,6 +104,9 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
   // active top menu item
   private activeTopLevelMenu: MenuItem;
 
+  // active submenu item
+  private activeSubMenu: MenuItem;
+    
   // this prevents changes to the @Input values until the service is being started
   private changesEnabled = false;
 
@@ -227,70 +230,78 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
   // This allows for deep links to arbitrary menu selections.
   private updateMenuActiveState(): any {
     let url = this.router.url;
-    this.logger.log("[HeaderComponent] updating menu state from current url: " + url);
-    // decodeURIComponent(url), this.router.url === '/_home'
-    this.logger.log("[HeaderComponent] WARNING: URL MANU UPDATE NOT YET IMPLEMENTED.");
-    /*
+    this.logger.log("[HeaderComponent] updating menu state from current url: " + url + " decoded:" + decodeURIComponent(url));
     if (this.currentContext && this.currentContext.type && this.currentContext.type.hasOwnProperty('menus')) {
       let foundPath = false;
       let menus = (this.currentContext.type as MenuedContextType).menus;
       for (let n of menus) {
-        // Clear the menu's active state
+        // clear the active state
         n.active = false;
-        //if (this.menuCallbacks.has(n.path)) {
-        //  this.menuCallbacks.get(n.path)(this).subscribe(val => n.hide = val);
-        //}
         // lets go in reverse order to avoid matching
         // /namespace/space/create instead of /namespace/space/create/pipelines
         // as the 'Create' page matches to the 'Codebases' page
         let subMenus = (n.menus || []).slice().reverse();
         if (subMenus) {
           for (let o of subMenus) {
-            // Clear the menu's active state
+            // clear the active state
             o.active = false;
-            if (!foundPath && o.fullPath === decodeURIComponent(this.router.url)) {
-              foundPath = true;
-              o.active = true;
-              n.active = true;
+            // if the submenu has contextLinks, iterate over them
+            if (!foundPath && o.contextLinks && o.contextLinks.length>0) {
+              for (let cp of o.contextLinks) {
+                // if a context link matches the systemContext and has the matching path, activate the submenu and the topmenu
+                if (cp.context===this.systemContext && cp.type==='internal' && cp.path === decodeURIComponent(url)) {
+                  this.logger.log("[HeaderComponent] found router path in submenu menus: " + cp.path);
+                  foundPath = true;
+                  o.active = true;
+                  n.active = true;  
+                }
+              }
             }
-            //if (this.menuCallbacks.has(o.path)) {
-            //  this.menuCallbacks.get(o.path)(this).subscribe(val => o.hide = val);
-            //}
           }
+          // if still not found, lets check if the url matches part of the path
           if (!foundPath) {
-            // lets check if the URL matches part of the path
             for (let o of subMenus) {
-              if (!foundPath && decodeURIComponent(this.router.url).startsWith(o.fullPath + "/")) {
-                foundPath = true;
-                o.active = true;
-                n.active = true;
+              for (let cp of o.contextLinks) {
+                if (!foundPath && cp.context===this.systemContext && cp.type==='internal' && decodeURIComponent(url).startsWith(cp.path + "/")) {
+                  this.logger.log("[HeaderComponent] found router path matching submenu menus: " + cp.path);
+                  foundPath = true;
+                  o.active = true;
+                  n.active = true;
+                }
               }
-              //if (this.menuCallbacks.has(o.path)) {
-              //  this.menuCallbacks.get(o.path)(this).subscribe(val => o.hide = val);
-              //}
             }
           }
+          // routes that can't be correctly matched based on the url should use the parent path
           if (!foundPath && this.router.routerState.snapshot.root.firstChild) {
-            // routes that can't be correctly matched based on the url should use the parent path
             for (let o of subMenus) {
-              let parentPath = decodeURIComponent('/' + this.router.routerState.snapshot.root.firstChild.url.join('/'));
-              if (!foundPath && o.fullPath === parentPath) {
-                foundPath = true;
-                o.active = true;
-                n.active = true;
+              for (let cp of o.contextLinks) {
+                let parentPath = decodeURIComponent('/' + this.router.routerState.snapshot.root.firstChild.url.join('/'));
+                if (!foundPath && cp.context===this.systemContext && cp.type==='internal' && o.path === parentPath) {
+                  this.logger.log("[HeaderComponent] found router parent path in submenu menus: " + cp.path + " parentPath: " + parentPath);
+                  foundPath = true;
+                  o.active = true;
+                  n.active = true;
+                }
               }
-              // if (this.menuCallbacks.has(o.path)) {
-              //  this.menuCallbacks.get(o.path)(this).subscribe(val => o.hide = val);
-              //}
             }
           }
-        } else if (!foundPath && n.fullPath === this.router.url) {
-          n.active = true;
-          foundPath = true;
+        } else if (n.contextLinks && n.contextLinks.length>0) {
+          for (let cp of n.contextLinks) {
+            if (cp.context===this.systemContext && cp.type==='internal' && cp.path === url) {
+              this.logger.log("[HeaderComponent] found router path in toplevel menus: " + cp.path);
+              n.active = true;
+              foundPath = true;
+            }
+          }
+        } else {
+          this.logger.log("[HeaderComponent] router path not found in menus: " + url);
         }
       }
+    } else {
+      // currentContext has no menus
+      this.logger.log("[HeaderComponent] the currentContext has no menus");
     }
-    */
+    this.logger.log("[HeaderComponent] completed matching url to menus");
   }
 
   // sets a new context; will also be called from
@@ -369,18 +380,24 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
 
   private menuSelect(menuItem: MenuItem) {
     this.goTo(menuItem);
-    this.onSelectMenuItem.emit(menuItem);
+    this.logger.log("[HeaderComponent] selected topmenu: " + menuItem.name);
     if (this.activeTopLevelMenu) {
       this.activeTopLevelMenu.active = false;
     }
     menuItem.active = true;
     this.activeTopLevelMenu = menuItem;
+    this.onSelectMenuItem.emit(menuItem);
   }
 
   private secondaryMenuSelect(menuItem: MenuItem) {
     this.goTo(menuItem);
     // TODO: this may need to also send [queryParams]="plannerFollowQueryParams"
     this.logger.log("[HeaderComponent] selected submenu: " + menuItem.name);
+    if (this.activeSubMenu) {
+      this.activeSubMenu.active = false;
+    }
+    menuItem.active = true;
+    this.activeSubMenu = menuItem;
     this.onSelectMenuItem.emit(menuItem);
   }
 
