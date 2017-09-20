@@ -2,12 +2,13 @@ import {
   Component
 } from '@angular/core';
 
-import { User, Profile } from "ngx-login-client";
-import { Context, ContextType, Space } from "ngx-fabric8-wit";
+import { User, Profile } from 'ngx-login-client';
+import { Context, ContextType, Space } from 'ngx-fabric8-wit';
 
-import { MenuItem } from "../menu-item";
-import { SystemStatus } from "../system-status";
-import { HeaderService } from "../header.service";
+import { MenuItem } from '../menu-item';
+import { ContextLink } from '../context-link';
+import { SystemStatus } from '../system-status';
+import { HeaderService } from '../header.service';
 
 @Component({
   selector: 'header-example',
@@ -61,6 +62,7 @@ import { HeaderService } from "../header.service";
 })
 export class HeaderExampleComponent {
   
+  systemContext: string;
   loggedInUser: User;
   currentContext: Context;
   recentContexts: Context[];
@@ -76,6 +78,7 @@ export class HeaderExampleComponent {
   selectLoginEventText: string;
   selectAboutEventText: string;
 
+  systemContextText: string;
   loggedInUserText: string;
   currentContextText: string;
   recentContextsText: string;
@@ -161,6 +164,9 @@ export class HeaderExampleComponent {
       this.loggedInUserServiceText = JSON.stringify(value)
       this.loggedInUserText = JSON.stringify(value);
     });
+
+    this.systemContext = 'someContext0';
+    this.systemContextText = this.systemContext;
     
     this.loggedInUser = {
       id: 'user-1',
@@ -185,19 +191,52 @@ export class HeaderExampleComponent {
             name: 'Menu Entry 0',
             icon: 'fa fa-heart',
             active: true,
-            fullPath: '_menuEntry0',
+            contextLinks: [
+              {
+                context: 'someContext0',
+                type: 'internal',
+                path: '_menuEntry0_someContext0'
+              } as ContextLink,
+              {
+                context: 'someContext1',
+                type: 'external',
+                path: 'http://ext.menuEntry0.someContext1/'
+              } as ContextLink
+            ] as ContextLink[],
             menus: [
               {
                 id: 'm01',
                 name: 'Submenu Entry 0-1',
                 icon: 'fa fa-heart',
-                fullPath: '_menuEntry0_1',
+                contextLinks: [
+                  {
+                    context: 'someContext0',
+                    type: 'internal',
+                    path: '_menuEntry0_1_someContext0'
+                  } as ContextLink,
+                  {
+                    context: 'someContext1',
+                    type: 'external',
+                    path: 'http://ext.menuEntry0_1.someContext1/'
+                  } as ContextLink
+                ] as ContextLink[]
               } as MenuItem,
               {
                 id: 'm02',
                 name: 'Submenu Entry 0-2',
                 icon: 'fa fa-heart',
-                fullPath: '_menuEntry0_2',
+                contextLinks: [
+                  {
+                    context: 'someContext0',
+                    type: 'internal',
+                    path: '_menuEntry0_2_someContext0'
+                  } as ContextLink,
+                  {
+                    context: 'someContext1',
+                    type: 'external',
+                    path: 'http://ext.menuEntry0_2.someContext1/'
+                  } as ContextLink
+                ] as ContextLink[]
               } as MenuItem,        
             ] as MenuItem[]
           } as MenuItem,
@@ -205,27 +244,71 @@ export class HeaderExampleComponent {
             id: 'm1',
             name: 'Menu Entry 1',
             icon: 'fa fa-heart',
-            fullPath: '_menuEntry1',
+            contextLinks: [
+              {
+                context: 'someContext0',
+                type: 'internal',
+                path: '_menuEntry1_someContext0'
+              } as ContextLink,
+              {
+                context: 'someContext1',
+                type: 'external',
+                path: 'http://ext.menuEntry1.someContext1/'
+              } as ContextLink
+            ] as ContextLink[],
             menus: [
               {
                 id: 'm11',
                 name: 'Submenu Entry 1-1',
                 icon: 'fa fa-heart',
-                fullPath: '_menuEntry1_1',
+                contextLinks: [
+                  {
+                    context: 'someContext0',
+                    type: 'internal',
+                    path: '_menuEntry1_1_someContext0'
+                  } as ContextLink,
+                  {
+                    context: 'someContext1',
+                    type: 'external',
+                    path: 'http://ext.menuEntry1_1.someContext1/'
+                  } as ContextLink
+                ] as ContextLink[]
               } as MenuItem,
               {
                 id: 'm12',
                 name: 'Submenu Entry 1-2',
                 icon: 'fa fa-heart',
-                fullPath: '_menuEntry1_2',
-              } as MenuItem,        
+                contextLinks: [
+                  {
+                    context: 'someContext0',
+                    type: 'internal',
+                    path: '_menuEntry1_2_someContext0'
+                  } as ContextLink,
+                  {
+                    context: 'someContext1',
+                    type: 'external',
+                    path: 'http://ext.menuEntry1_2.someContext1/'
+                  } as ContextLink
+                ] as ContextLink[]
+              } as MenuItem,
             ] as MenuItem[]
           } as MenuItem,
           {
             id: 'm2',
             name: 'Menu Entry 2',
             icon: 'fa fa-heart',
-            extUrl: 'http://ext.url/',
+            contextLinks: [
+              {
+                context: 'someContext0',
+                type: 'internal',
+                path: '_menuEntry2_someContext0'
+              } as ContextLink,
+              {
+                context: 'someContext1',
+                type: 'external',
+                path: 'http://ext.menuEntry2.someContext1/'
+              } as ContextLink
+            ] as ContextLink[]
           } as MenuItem,
         ] as MenuItem[]
       } as ContextType,
@@ -264,11 +347,11 @@ export class HeaderExampleComponent {
     
     this.systemStatus = [
       {
-        name: "Some Subsystem",
+        name: 'Some Subsystem',
         statusOk: true
       } as SystemStatus,
       {
-        name: "Some Other Subsystem",
+        name: 'Some Other Subsystem',
         statusOk: false
       } as SystemStatus      
     ]

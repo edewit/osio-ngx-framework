@@ -8,6 +8,7 @@ import { Context } from 'ngx-fabric8-wit';
 import { Logger } from 'ngx-base';
 
 import { MenuItem } from './menu-item';
+import { ContextLink } from './context-link';
 import { SystemStatus } from './system-status';
 import { MenuedContextType } from './menued-context-type';
 import { Router } from "@angular/router/router";
@@ -191,23 +192,23 @@ export class HeaderService {
   }
 
   /**
-   * This routes to an internal path based on the given MenuItem.
-   * @param menuItem MenuItem that carries the fullPath to navigated to.
+   * This routes to an internal path based on the given ContextLink.
+   * @param contextLink ContextLink that carries the path to navigated to.
    * @param router Router for navigating.
    */
-  public routeToInternal(menuItem: MenuItem, router: Router) {
-    this.logger.log("[HeaderService] Routing to internal route path: " + menuItem.fullPath);      
-    router.navigate([menuItem.fullPath]);
+  public routeToInternal(contextLink: ContextLink, router: Router) {
+    this.logger.log("[HeaderService] Routing to internal route path: " + contextLink.path);      
+    router.navigate([contextLink.path]);
   }
 
   /**
-   * This navigates to an external url based on the given MenuItem.
-   * @param menuItem MenuItem that carries the fullPath to navigated to.
+   * This navigates to an external url based on the given ContextLink.
+   * @param contextLink ContextLink that carries the path to navigated to.
    * @param window Window instance to be used for navigating.
    */
-  public routeToExternal(menuItem: MenuItem, window: Window) {
-    this.logger.log("[HeaderService] Routing to external route path: " + menuItem.fullPath);      
-    window.location.href = menuItem.fullPath;
+  public routeToExternal(contextLink: ContextLink, window: Window) {
+    this.logger.log("[HeaderService] Routing to external route path: " + contextLink.path);      
+    window.location.href = contextLink.path;
   }
 
   // stores a given data in the localStorage. This is domain/port/protocol

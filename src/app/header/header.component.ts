@@ -45,6 +45,10 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
   @Input("followLinks")
   private followLinks: Boolean = false;
   
+  // the system context, this determines which ContextLink is considered.
+  @Input("systemContext")
+  private systemContext: string;
+
   // user logged in
   @Input("user")
   private user: User;
@@ -146,6 +150,8 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
       this.logger.log("[HeaderComponent] syncing detected changes to newSystemStatus to persistence storage.");
       if (this.changesEnabled)
         this.headerService.persistSystemStatus(this.systemStatus);      
+    } else if (changes.systemContext && changes.systemContext.currentValue) {
+      this.logger.log("[HeaderComponent] systemContext changed to " + this.systemContext);      
     } else {
       this.logger.log("[HeaderComponent] detected changes to unknown attribute: " + JSON.stringify(changes));
     }
@@ -311,7 +317,7 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
   
   private selectRecentContext(context: Context) {
     // making this automatic routing the user to
-    // the context.path would require adding an
+    // the context.fullPath would require adding an
     // alternative way for extUrls here. This would mean
     // breaking the model (we would need another field in
     // Context, which is not easily possible from this
@@ -384,30 +390,39 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   // this executes the link, based on what link type the menuItem is of.
-  // external resources have the extUrl attribute set to an url. The
-  // extUrl attribute takes precedence over the router link in fullPath.
-  // If neither is set, there is only the event from the menu click emitted.
+  // The value of systemContext determines which ContextLink is being taken.
   private goTo(menuItem: MenuItem) {
-    if (menuItem.extUrl) {
-      // this is an external URL
-      this.onFollowedLink.emit("[external] " + menuItem.extUrl);
-      // TODO: store all data to localStorage
-      if (this.followLinks) {
-        this.logger.log("[HeaderComponent] routing to external url " + menuItem.extUrl);
-        this.headerService.routeToExternal(menuItem, window);
-      } else {
-        this.logger.log("[HeaderComponent] followLinks is false or unset, skipping routing to external url " + menuItem.extUrl);
-      }
-    }
-    if (menuItem.fullPath) {
-      // this is an internal router link
-      this.onFollowedLink.emit("[router] " + menuItem.fullPath);
-      if (this.followLinks) {
-        this.logger.log("[HeaderComponent] routing to internal route " + menuItem.fullPath);
-        this.headerService.routeToInternal(menuItem, this.router);
-      } {
-        this.logger.log("[HeaderComponent] followLinks is false or unset, skipping routing to external url " + menuItem.extUrl);        
-      }
+    this.logger.log("[HeaderComponent] goTo called for menuItem " + menuItem.id);
+    if (menuItem.contextLinks) {
+      for (let i=0; i<menuItem.contextLinks.length; i++) {
+        let thisContextLink = menuItem.contextLinks[i];
+        if (thisContextLink.context===this.systemContext) {
+          this.logger.log("[HeaderComponent] found contextLink matching systemContext for menuItem " + menuItem.id);
+          if (thisContextLink.type==="external") {
+            // this is an external URL
+            this.onFollowedLink.emit("[external] " + thisContextLink.path);
+            // TODO: store all data to localStorage
+            if (this.followLinks) {
+              this.logger.log("[HeaderComponent] routing to external url " + thisContextLink.path);
+              this.headerService.routeToExternal(thisContextLink, window);
+            } else {
+              this.logger.log("[HeaderComponent] followLinks is false or unset, skipping routing to external url " + thisContextLink.path);
+            }
+          }
+          if (thisContextLink.type==="internal") {
+            // this is an internal router link
+            this.onFollowedLink.emit("[router] " + thisContextLink.path);
+            if (this.followLinks) {
+              this.logger.log("[HeaderComponent] routing to internal route " + thisContextLink.path);
+              this.headerService.routeToInternal(thisContextLink, this.router);
+            } {
+              this.logger.log("[HeaderComponent] followLinks is false or unset, skipping routing to external url " + thisContextLink.path);        
+            }
+          }   
+        }
+      }        
+    } else {
+      this.logger.log("[HeaderComponent] menuItem has no contextLinks: " + menuItem.id);
     }
   }
 

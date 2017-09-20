@@ -9,6 +9,7 @@ export { HeaderModule } from './src/app/header/header.module';
 export { HeaderComponent } from './src/app/header/header.component';
 export { HeaderService } from './src/app/header/header.service';
 export { MenuItem } from './src/app/header/menu-item';
+export { ContextLink } from './src/app/header/context-link';
 export { MenuedContextType } from './src/app/header/menued-context-type';
 export { SystemStatus } from './src/app/header/system-status';
 
