@@ -30,6 +30,23 @@
       </div>
     </div>
   </div>
+
+  <div class="row padding-top-15">
+    <div class="col-xs-12">
+      <h4>Example Settings</h4>
+      <hr/>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12 header-form">
+      <div class="col-sm-3 margin-top-15">
+        <p><span class="input-label">bootstrap service</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="bootstrapService()">Go</button></p>
+      </div>
+      <div class="col-sm-3 margin-top-15">
+          <p><span class="input-label">bootstrap inputs</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="bootstrapInputs()">Go</button></p>
+        </div>
+    </div>
+  </div>
   <div class="row padding-top-15">
       <div class="col-xs-12">
         <h4>Component Events</h4>
@@ -82,19 +99,19 @@
   </div>
   <div class="row padding-bottom-15">
     <div class="col-sm-12 header-form">
-      <div class="col-sm-3">
+      <div class="col-sm-3 margin-top-15">
         <p><span class="input-label">loggedInUser</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="loggedInUser=parseJSON(loggedInUserText)">Update</button></p>
         <textarea class="input-textarea input-loggedInUser" [(ngModel)]="loggedInUserText"></textarea>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-3 margin-top-15">
         <p><span class="input-label">currentContext</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="currentContext=parseJSON(currentContextText)">Update</button></p>
         <textarea class="input-textarea input-currentContext" [(ngModel)]="currentContextText"></textarea>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-3 margin-top-15">
         <p><span class="input-label">recentContexts</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="recentContexts=parseJSON(recentContextsText)">Update</button></p>
         <textarea class="input-textarea input-recentContexts" [(ngModel)]="recentContextsText"></textarea>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-3 margin-top-15">
         <p><span class="input-label">systemStatus</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="systemStatus=parseJSON(systemStatusText)">Update</button></p>
         <textarea class="input-textarea input-systemStatus" [(ngModel)]="systemStatusText"></textarea>
       </div>
@@ -112,24 +129,32 @@
   </div>
   <div class="row padding-bottom-15">
     <div class="col-sm-12 header-form">
-      <div class="col-sm-3">
-        <p><span class="input-label">persistUser</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.persistUser(parseJSON(loggedInUserServiceText))">Update</button></p>
+      <div class="col-sm-3 margin-top-15">
+        <p><span class="input-label">persistUser</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.persistUser(parseJSON(loggedInUserServiceText))">Call</button></p>
         <textarea class="input-textarea input-loggedInUser" [(ngModel)]="loggedInUserServiceText"></textarea>
       </div>
-      <div class="col-sm-3">
-        <p><span class="input-label">persistCurrentContext</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.persistCurrentContext(parseJSON(currentContextServiceText))">Update</button></p>
+      <div class="col-sm-3 margin-top-15">
+        <p><span class="input-label">persistCurrentContext</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.persistCurrentContext(parseJSON(currentContextServiceText))">Call</button></p>
         <textarea class="input-textarea input-currentContext" [(ngModel)]="currentContextServiceText"></textarea>
       </div>
-      <div class="col-sm-3">
-        <p><span class="input-label">persistRecentContexts</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.persistRecentContexts(parseJSON(recentContextsServiceText))">Update</button></p>
+      <div class="col-sm-3 margin-top-15">
+        <p><span class="input-label">persistRecentContexts</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.persistRecentContexts(parseJSON(recentContextsServiceText))">Call</button></p>
         <textarea class="input-textarea input-recentContexts" [(ngModel)]="recentContextsServiceText"></textarea>
       </div>
-      <div class="col-sm-3">
-        <p><span class="input-label">persistSystemStatus</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.persistSystemStatus(parseJSON(systemStatusServiceText))">Update</button></p>
+      <div class="col-sm-3 margin-top-15">
+        <p><span class="input-label">persistSystemStatus</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.persistSystemStatus(parseJSON(systemStatusServiceText))">Call</button></p>
         <textarea class="input-textarea input-systemStatus" [(ngModel)]="systemStatusServiceText"></textarea>
       </div>
       <div class="col-sm-3 margin-top-15">
-        <p><span class="input-label">clear storage</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.clear()">Clear</button></p>
+        <p><span class="input-label">updateSystemStatus</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.updateSystemStatus(parseJSON(setSystemStatusServiceText))">Call</button></p>
+        <textarea class="input-textarea input-systemStatus" [(ngModel)]="setSystemStatusServiceText"></textarea>
+      </div>
+      <div class="col-sm-3 margin-top-15">
+        <p><span class="input-label">addRecentContext</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.addRecentContext(parseJSON(addRecentContextServiceText))">Call</button></p>
+        <textarea class="input-textarea input-systemStatus" [(ngModel)]="addRecentContextServiceText"></textarea>
+      </div>
+      <div class="col-sm-3 margin-top-15">
+        <p><span class="input-label">clear storage</span>&nbsp;<button class="btn btn-primary btn-xs" (click)="headerService.clean()">Clear</button></p>
       </div>
     </div>
   </div>

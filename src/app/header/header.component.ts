@@ -13,6 +13,8 @@ import { MenuedContextType } from './menued-context-type';
 import { ContextLink } from './context-link';
 import { SystemStatus } from "./system-status";
 
+// TODO: wir brauchen einen weg, wie man boostrappt.
+
 /*
  * This is a re-usable header component that is able to persist the state
  * of all involved data on page reloads (or application switches on the same
@@ -24,11 +26,15 @@ import { SystemStatus } from "./system-status";
  * component but across application boundaries - it should preserve it's data on
  * application switches as it would be doing it in a single SPA.
  * 
- * Values in the attributes at init time are getting ignored when there are values
- * stored in localStorage. Or in other words: values in localStorage always take 
- * precedence over local attribute values to the component. If you need to update the
- * values, use either the attributes or the headerService. Both ways work either way,
- * always storing changes in localStorage immediately.
+ * Values in the attributes at init time are getting ignored. Or in other words: 
+ * on bootstrap, values in localStorage always take precedence over local attribute 
+ * values to the component. If there are no values stored in localStorage, an empty
+ * set of values is created. Updating @Input values is possible after boostrapping.
+ * If you need to update the values, use either the attributes or the headerService. 
+ * Both ways work either way, always storing changes in localStorage immediately.
+ * 
+ * It is recommended to always use the service to change the values instead of
+ * @Input values.
  */
 @Component({
   selector: 'osio-app-header',
@@ -97,7 +103,7 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
   private onFollowedLink: EventEmitter<string> = new EventEmitter<string>();
 
   // navbar collapse state
-  private isNavbarVisible: Boolean = false; 
+  private isNavbarVisible: Boolean = false;
     
   // avatar loaded state
   private avatarLoaded: Boolean = false;
@@ -168,43 +174,19 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
     // headerService.clear().
     this.headerService.retrieveCurrentContext().subscribe(value => { 
       this.logger.log("[HeaderComponent] incoming service change to currentContext: " + JSON.stringify(value));
-      if (value) {
-        this.logger.log("[HeaderComponent] set service change to currentContext.");
-        this.setCurrentContext(value)
-      } else {
-        this.logger.log("[HeaderComponent] service change to currentContext are nil, not setting them.");        
-        this.headerService.persistCurrentContext(this.currentContext);
-      }
+      this.setCurrentContext(value)
     });
     this.headerService.retrieveRecentContexts().subscribe(value => {
       this.logger.log("[HeaderComponent] incoming service change to recentContexts: " + JSON.stringify(value));
-      if (value) {
-        this.logger.log("[HeaderComponent] set service change to recentContexts.");
-        this.recentContexts = value
-      } else {
-        this.logger.log("[HeaderComponent] service change to recentContexts are nil, not setting them.");        
-        this.headerService.persistRecentContexts(this.recentContexts);
-      }
+      this.recentContexts = value
     });
     this.headerService.retrieveSystemStatus().subscribe(value => {
       this.logger.log("[HeaderComponent] incoming service change to systemStatus: " + JSON.stringify(value));
-      if (value) {
-        this.logger.log("[HeaderComponent] set service change to systemStatus.");
-        this.systemStatus = value
-      } else {
-        this.logger.log("[HeaderComponent] service change to systemStatus are nil, not setting them.");        
-        this.headerService.persistSystemStatus(this.systemStatus);
-      }
+      this.systemStatus = value
     });
     this.headerService.retrieveUser().subscribe(value => {
       this.logger.log("[HeaderComponent] incoming service change to user: " + JSON.stringify(value));
-      if (value) {
-        this.logger.log("[HeaderComponent] set service change to user.");
-        this.user = value
-      } else {
-        this.logger.log("[HeaderComponent] service change to user are nil, not setting them.");
-        this.headerService.persistUser(this.user);
-      }
+      this.user = value
     });
     // we now allow changes to be propagated. We need this because the localStorage values
     // should have precedence while still being able to detect changes to the @Input attributes.
@@ -313,17 +295,21 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
   // ngOnChanges when the current context changes
   // to update the menus
   private setCurrentContext(context: Context) {
-    this.logger.log("[HeaderComponent] set current context to " + context.name);
     // store the new context
     this.currentContext = context;
     // update the active menu, set to non-active
     if (this.activeTopLevelMenu) {
       this.activeTopLevelMenu.active = false;
     }
-    // set the new context menu
-    let menus = (this.currentContext.type as MenuedContextType).menus;
-    this.activeTopLevelMenu = menus[0];
-    this.activeTopLevelMenu.active = true;
+    if (context) {
+      this.logger.log("[HeaderComponent] set current context to " + context.name);
+      // set the new context menu
+      let menus = (this.currentContext.type as MenuedContextType).menus;
+      this.activeTopLevelMenu = menus[0];
+      this.activeTopLevelMenu.active = true;  
+    } else {
+      this.logger.log("[HeaderComponent] unset current context");      
+    }
   }
 
   // toggle navbar collapse

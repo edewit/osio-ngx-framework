@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Injectable } from '@angular/core';
 
 import { User } from 'ngx-login-client';
-import { Context } from 'ngx-fabric8-wit';
+import { Context, Space, ContextType } from 'ngx-fabric8-wit';
 import { Logger } from 'ngx-base';
 
 import { MenuItem } from './menu-item';
@@ -35,32 +35,78 @@ export class HeaderService {
   }
 
   /**
+   * This updates a system status. If the given systemStatus is not 
+   * already in the known status values (compared by id), it is 
+   * added to the list.
+   * @param systemStatus SystemStatus to be updated/added.
+   */
+  public updateSystemStatus(systemStatus: SystemStatus) {
+    this.retrieveSystemStatus().first().subscribe(currentSystemStatus => {
+      // returned systemStatus is never undefined, always at least empty array
+      for (let i=0; i<currentSystemStatus.length; i++) {
+        if (currentSystemStatus[i].id === systemStatus.id) {
+          currentSystemStatus[i].name = systemStatus.name;
+          currentSystemStatus[i].statusOk = systemStatus.statusOk;
+          this.persistSystemStatus(currentSystemStatus);
+          return;
+        }        
+      }
+      // if not found, add it to the array
+      currentSystemStatus.push(systemStatus);
+      this.persistSystemStatus(currentSystemStatus);
+    });
+  }
+
+  /**
+   * This adds a new entry to the recent contexts.
+   * @param context Context to be added to recentContexts.
+   */
+  public addRecentContext(context: Context) {
+    this.retrieveRecentContexts().first().subscribe(recentContexts => {
+      // returned recent contexts are never undefined, always at least empty array
+      recentContexts.push(context);
+      this.persistRecentContexts(recentContexts);
+    });
+  }
+
+  /**
    * This stores the given data across web applications using localStorage.
    * Listeners subscribed to the matching @retrieveCurrentContext() are 
    * notified of the new stored value.
    * @param context data to be stored.
    */
   public persistCurrentContext(context: Context) {
-    this.logger.log("[HeaderService] Stored currentContext");
-    this.persist(this.KEY_CURRENT_CONTEXT, context);
+    if (context) {
+      this.persist(this.KEY_CURRENT_CONTEXT, context);      
+      this.logger.log("[HeaderService] Stored currentContext");
+    } else {
+      this.clear(this.KEY_CURRENT_CONTEXT);
+      this.logger.log("[HeaderService] Removed currentContext");
+    }
     // notify subscribers
-    this.retrieveCurrentContext();        
+    if (!this.currentContextSource) {
+      this.logger.log("[HeaderService] Creating new BehaviourSubject for currentContext");
+      this.currentContextSource = new BehaviorSubject<Context>(context);
+      this.currentContextSource$ = this.currentContextSource.asObservable();
+    } 
+    this.currentContextSource.next(context);
   }
 
   /**
    * This returns an Observable for the data. The latest value
    * will immediately being sent, so clients can expect the
-   * current value.
+   * current value. Initial value is undefined.
    */
   public retrieveCurrentContext(): Observable<Context> {
-    this.logger.log("[HeaderService] Retrieved currentContext");
     let context: Context = this.retrieve(this.KEY_CURRENT_CONTEXT) as Context;
     if (!this.currentContextSource) {
+      this.logger.log("[HeaderService] Creating new BehaviourSubject for currentContext");
       this.currentContextSource = new BehaviorSubject<Context>(context);
       this.currentContextSource$ = this.currentContextSource.asObservable();
     } else {
       this.currentContextSource.next(context);
     }
+    this.logger.log("[HeaderService] Retrieved currentContext");
     return this.currentContextSource$;
   }
 
@@ -71,26 +117,36 @@ export class HeaderService {
    * @param contexts data to be stored.
    */
   public persistRecentContexts(contexts: Context[]) {
-    this.logger.log("[HeaderService] Stored recentContext");
     this.persist(this.KEY_RECENT_CONTEXTS, contexts);
+    this.logger.log("[HeaderService] Stored recentContext");
     // notify subscribers
-    this.retrieveRecentContexts();        
+    if (!this.recentContextsSource) {
+      this.logger.log("[HeaderService] Creating new BehaviourSubject for recentContexts");
+      this.recentContextsSource = new BehaviorSubject<Context[]>(contexts);
+      this.recentContextsSource$ = this.recentContextsSource.asObservable();
+    } 
+    this.recentContextsSource.next(contexts);
   }
 
   /**
    * This returns an Observable for the data. The latest value
    * will immediately being sent, so clients can expect the
-   * current value.
+   * current value. Initial value is empty array.
    */
   public retrieveRecentContexts(): Observable<Context[]> {
-    this.logger.log("[HeaderService] Retrieved recentContexts");
     let contexts: Context[] = this.retrieve(this.KEY_RECENT_CONTEXTS) as Context[];
     if (!this.recentContextsSource) {
+      this.logger.log("[HeaderService] Creating new BehaviourSubject for recentContexts");
       this.recentContextsSource = new BehaviorSubject<Context[]>(contexts);
       this.recentContextsSource$ = this.recentContextsSource.asObservable();
+      this.recentContextsSource.next([] as Context[]);
     } else {
-      this.recentContextsSource.next(contexts);
+      if (contexts)
+        this.recentContextsSource.next(contexts);
+      else
+        this.recentContextsSource.next([]);      
     }
+    this.logger.log("[HeaderService] Retrieved recentContexts");
     return this.recentContextsSource$;
   }
 
@@ -101,26 +157,37 @@ export class HeaderService {
    * @param user data to be stored.
    */
   public persistUser(user: User) {
-    this.logger.log("[HeaderService] Stored user");
-    this.persist(this.KEY_USER, user);
+    if (user) {
+      this.persist(this.KEY_USER, user);      
+      this.logger.log("[HeaderService] Stored user");
+    } else {
+      this.clear(this.KEY_USER);
+      this.logger.log("[HeaderService] Removed user");
+    }
     // notify subscribers
-    this.retrieveUser();
+    if (!this.userSource) {
+      this.logger.log("[HeaderService] Creating new BehaviourSubject for user");
+      this.userSource = new BehaviorSubject<User>(user);
+      this.userSource$ = this.userSource.asObservable();
+    }
+    this.userSource.next(user);
   }
 
   /**
    * This returns an Observable for the data. The latest value
    * will immediately being sent, so clients can expect the
-   * current value.
+   * current value. Initial value is undefined.
    */
   public retrieveUser(): Observable<User> {
-    this.logger.log("[HeaderService] Retrieved user");
     let user: User = this.retrieve(this.KEY_USER) as User;
     if (!this.userSource) {
+      this.logger.log("[HeaderService] Creating new BehaviourSubject for user");
       this.userSource = new BehaviorSubject<User>(user);
       this.userSource$ = this.userSource.asObservable();
     } else {
       this.userSource.next(user);
     }
+    this.logger.log("[HeaderService] Retrieved user");
     return this.userSource$;
   }
 
@@ -134,34 +201,54 @@ export class HeaderService {
     this.logger.log("[HeaderService] Stored systemStatus");
     this.persist(this.KEY_SYSTEM_STATUS, systemStatus);    
     // notify subscribers
-    this.retrieveSystemStatus();
+    if (!this.systemStatusSource) {
+      this.logger.log("[HeaderService] Creating new BehaviourSubject for systemStatus");
+      this.systemStatusSource = new BehaviorSubject<SystemStatus[]>(systemStatus);
+      this.systemStatusSource$ = this.systemStatusSource.asObservable();
+    }
+    this.logger.log("[HeaderService] Sending out new systemStatus to subscribers");
+    this.systemStatusSource.next(systemStatus);
   }
 
   /**
    * This returns an Observable for the data. The latest value
    * will immediately being sent, so clients can expect the
-   * current value.
+   * current value. Initial value is empty array.
    */
   public retrieveSystemStatus(): Observable<SystemStatus[]> {
-    this.logger.log("[HeaderService] Retrieved systemStatus");
     let systemStatus = this.retrieve(this.KEY_SYSTEM_STATUS) as SystemStatus[];
     if (!this.systemStatusSource) {
       this.logger.log("[HeaderService] Creating new BehaviourSubject for systemStatus");
       this.systemStatusSource = new BehaviorSubject<SystemStatus[]>(systemStatus);
       this.systemStatusSource$ = this.systemStatusSource.asObservable();
+      this.systemStatusSource.next([] as SystemStatus[]);
     } else {
-      this.logger.log("[HeaderService] Sending out new systemStatus to subscribers");
+      if (systemStatus)
       this.systemStatusSource.next(systemStatus);
+      else
+        this.systemStatusSource.next([]);      
     }
+    this.logger.log("[HeaderService] Retrieved systemStatus");
     return this.systemStatusSource$;
   }
 
   /**
-   * This cleas the persistent storage in the browser's local storage.
-   * Subscribed clients will not be notified.
+   * Initialzes persistent storage with default values.
    */
-  public clear() {
-    localStorage.clear();
+  public init() {
+    this.clean();
+    this.logger.log("[HeaderService] Initialized storage.");
+  }
+
+  /**
+   * This cleans the persistent storage in the browser's local storage.
+   * Subscribed clients will be notified.
+   */
+  public clean() {
+    this.persistUser(undefined);
+    this.persistCurrentContext(undefined);
+    this.persistRecentContexts(undefined);
+    this.persistSystemStatus(undefined);
     this.logger.log("[HeaderService] Cleared storage.");
   }
 
@@ -211,6 +298,120 @@ export class HeaderService {
     window.location.href = contextLink.path;
   }
 
+  /**
+   * This creates a context from a given Space and User. This effectively
+   * pre-configures the menu system and the available menuitems. This method
+   * should be configurable or externalized at some point to make the menu
+   * configuration not hardcoded. It should be replaced by some kind of
+   * registry for OSIO components, where external apps can register and
+   * being added to a dynamic menu structure.
+   * @param space Space for the new Context.
+   * @param user User for the new Context.
+   */
+  public createContext(name: string, path: string, space: Space, user: User): Context {
+    return {
+      user: user,
+      space: space,
+      type: { 
+        name: 'space',
+        icon: 'fa fa-heart',
+        menus: [
+          {
+            id: 'analyze',
+            name: 'Analyze',
+            icon: '',
+            active: true,
+            contextLinks: [
+              {
+                context: 'platform',
+                type: 'internal',
+                path: '/analyze'
+              } as ContextLink,
+              {
+                context: 'planner',
+                type: 'external',
+                path: 'http://ext.menuEntry0.someContext1/'
+              } as ContextLink
+            ] as ContextLink[],
+            menus: [ ] as MenuItem[]
+          } as MenuItem,
+          {
+            id: 'planner',
+            name: 'Planner',
+            icon: '',
+            contextLinks: [
+              {
+                context: 'planner',
+                type: 'internal',
+                path: '/planner/list'
+              } as ContextLink,
+              {
+                context: 'platform',
+                type: 'external',
+                path: 'http://ext.menuEntry1.someContext1/'
+              } as ContextLink
+            ] as ContextLink[],
+            menus: [
+              {
+                id: 'planner_list',
+                name: 'Backlog',
+                icon: 'fa fa-heart',
+                contextLinks: [
+                  {
+                    context: 'planner',
+                    type: 'internal',
+                    path: '/plan/list'
+                  } as ContextLink,
+                  {
+                    context: 'platform',
+                    type: 'external',
+                    path: 'http://ext.menuEntry1_1.someContext1/'
+                  } as ContextLink
+                ] as ContextLink[]
+              } as MenuItem,
+              {
+                id: 'planner_board',
+                name: 'Board',
+                icon: 'fa fa-heart',
+                contextLinks: [
+                  {
+                    context: 'planner',
+                    type: 'internal',
+                    path: '/plan/board'
+                  } as ContextLink,
+                  {
+                    context: 'platform',
+                    type: 'external',
+                    path: 'http://ext.menuEntry1_2.someContext1/'
+                  } as ContextLink
+                ] as ContextLink[]
+              } as MenuItem,
+            ] as MenuItem[]
+          } as MenuItem,
+          {
+            id: 'create',
+            name: 'Create',
+            icon: '',
+            contextLinks: [
+              {
+                context: 'platform',
+                type: 'internal',
+                path: '/create'
+              } as ContextLink,
+              {
+                context: 'planner',
+                type: 'external',
+                path: 'http://ext.menuEntry2.someContext1/'
+              } as ContextLink
+            ] as ContextLink[]
+          } as MenuItem,
+        ] as MenuItem[]
+      } as ContextType,
+      path: path,
+      name: name
+    } as Context;
+  }
+
   // stores a given data in the localStorage. This is domain/port/protocol
   // specific, but as OSIO is always using the same domain/port/protocol, this
   // works. We do not do encryption or obfuscation for now, there is no attack
@@ -235,5 +436,10 @@ export class HeaderService {
       this.logger.log("[HeaderService] retrieved key " + key + " has invalid value " + text);
       return null;
     }
+  }
+
+  private clear(key: string) {
+    localStorage.removeItem(key);
+    this.logger.log("[HeaderService] removed key " + key);
   }
 }

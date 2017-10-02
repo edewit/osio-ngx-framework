@@ -40,8 +40,10 @@
     &:hover { .pointer; }
   }
   .status-dropdown {
+    /*
     border-right: 1px solid;
     border-right-color: @color-pf-black-600;
+    */
   }
   .user-dropdown-menu {
     height: 43px;
@@ -52,9 +54,13 @@
       height: 43px;
     }
   }
-  &-getting-started-logo {
-    width: 15%;
-    margin-top: 7px;
+  .logo {
+    width: 50%;
+    margin-top: 8px;
+    margin-left: 10px;
+    img {
+      width: 100%;
+    }
   }
 }
 .navbar-pf {
@@ -93,8 +99,10 @@
 .io-recent-items-active {
   height: 43px;
   width: 275px;
+  /*
   border-right: 1px solid;
   border-right-color: @color-pf-black-600;
+  */
 }
 .recent-items-toggle {
   width: 273px;
@@ -134,8 +142,11 @@
   }
 }
 .login-block {
+  /*
   border-left: 1px solid;
   border-left-color: @color-pf-black-600;
+  */
+  padding-top: 2px;
   a {
     padding-top: 11px;
     padding-bottom: 11px;
@@ -173,7 +184,7 @@
     position: absolute;
     right: 0;
     margin-right: 5px;
-    margin-top: 8px;
+    margin-top: 2px;
   }
   &-menu {
     .dropdown-menu {

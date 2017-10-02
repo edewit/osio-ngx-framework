@@ -10,6 +10,9 @@
     </div>
     <div class="collapse navbar-collapse" [ngClass]="{ 'in' : isNavbarVisible }">
       <ul class="nav navbar-nav">
+        <li class="logo" dropdown *ngIf="!user">
+          <img src="../../assets/images/logo.png">
+        </li>
         <li class="context dropdown recent-items-dropdown" dropdown *ngIf="user">
           <a class="recent-items-toggle io-recent-items-active dropdown-toggle" dropdownToggle data-toggle="tooltip" title="{{currentContext.name}}">
             <div id="header_dropdownToggle" class="recent-items-toggle-text">

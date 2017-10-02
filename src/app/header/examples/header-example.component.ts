@@ -90,6 +90,8 @@ export class HeaderExampleComponent {
   recentContextsServiceText: string;
   systemStatusServiceText: string;
   followedLinkServiceText: string;
+  setSystemStatusServiceText: string;
+  addRecentContextServiceText: string;
 
   onSelectRecentContext(context: Context) {
     this.selectRecentContextEventText = context?JSON.stringify(context):'isNil';
@@ -142,8 +144,113 @@ export class HeaderExampleComponent {
     return JSON.parse(input);
   }
 
-  constructor(private headerService: HeaderService) {
+  bootstrapService() {
+    this.headerService.clean();
+    
+    let user: User = {
+      id: 'user-1-service',
+      attributes: {
+        username: 'exampleuserservice',
+        fullName: 'Example User Service'
+      } as Profile
+    } as User;
 
+    let space0: Space = {
+      name: 'spaceName0-service'
+    } as Space;
+
+    let space1: Space = {
+      name: 'spaceName1-service'
+    } as Space;
+
+    let space2: Space = {
+      name: 'spaceName2-service'
+    } as Space;
+
+    let context0 = this.headerService.createContext('Context 0', 'path0', space0, user);
+    let context1 = this.headerService.createContext('Context 1', 'path1', space1, user);
+    let context2 = this.headerService.createContext('Context 2', 'path2', space2, user);
+
+    let systemStatus0: SystemStatus = {
+        id: 'status0-service',
+        name: 'Some Subsystem Service',
+        statusOk: true
+      } as SystemStatus;
+
+    let systemStatus1: SystemStatus = {
+      id: 'status1-service',
+      name: 'Some Subsystem Service',
+      statusOk: true
+    } as SystemStatus;
+
+    this.headerService.persistUser(user);
+    this.loggedInUserText = JSON.stringify(user);
+
+    this.headerService.persistCurrentContext(context0);
+    this.currentContextText = JSON.stringify(context0);
+
+    this.headerService.addRecentContext(context1);
+    this.headerService.addRecentContext(context2);
+    this.recentContextsText = JSON.stringify([context1, context2]);
+
+    this.headerService.updateSystemStatus(systemStatus0);
+    this.headerService.updateSystemStatus(systemStatus1);
+    this.systemStatusText = JSON.stringify([systemStatus0, systemStatus1]);
+  }
+
+  bootstrapInputs() {
+    this.headerService.clean();
+
+    let user: User = {
+      id: 'user-1-inputs',
+      attributes: {
+        username: 'exampleuserinputs',
+        fullName: 'Example User Inputs'
+      } as Profile
+    } as User;
+
+    let space0: Space = {
+      name: 'spaceName0-inputs'
+    } as Space;
+
+    let space1: Space = {
+      name: 'spaceName1-inputs'
+    } as Space;
+
+    let space2: Space = {
+      name: 'spaceName2-inputs'
+    } as Space;
+
+    let context0 = this.headerService.createContext('Context 0', 'path0', space0, user);
+    let context1 = this.headerService.createContext('Context 1', 'path1', space1, user);
+    let context2 = this.headerService.createContext('Context 2', 'path2', space2, user);
+
+    let systemStatus0: SystemStatus = {
+        id: 'status0-inputs',
+        name: 'Some Subsystem Inputs',
+        statusOk: true
+      } as SystemStatus;
+
+    let systemStatus1: SystemStatus = {
+      id: 'status1-service',
+      name: 'Some Subsystem Inputs',
+      statusOk: true
+    } as SystemStatus;
+
+    this.loggedInUser = user;
+    this.loggedInUserText = JSON.stringify(this.loggedInUser);
+
+    this.currentContext = context0;
+    this.currentContextText = JSON.stringify(context0);
+
+    this.recentContexts = [ context1, context2 ] as Context[];
+    this.recentContextsText = JSON.stringify(this.recentContexts);
+
+    this.systemStatus = [ systemStatus0, systemStatus0 ] as SystemStatus[];
+    this.systemStatusText = JSON.stringify(this.systemStatus);
+  }
+
+  constructor(private headerService: HeaderService) {    
     // listen to changes on the service. If a change is coming in,
     // update the serviceTexts and update the localTexts. We don't set
     // the actual values here in the example as they are not used
@@ -165,196 +272,32 @@ export class HeaderExampleComponent {
       this.loggedInUserText = JSON.stringify(value);
     });
 
-    this.systemContext = 'someContext0';
+    this.systemContext = 'planner';
     this.systemContextText = this.systemContext;
-    
-    this.loggedInUser = {
-      id: 'user-1',
-      attributes: {
-        username: 'exampleuser',
-        fullName: 'Example User'
-      } as Profile
-    } as User;
-    this.loggedInUserText = JSON.stringify(this.loggedInUser);
-    
-    this.currentContext = {
-      user: this.loggedInUser,
+
+    this.setSystemStatusServiceText = JSON.stringify({
+      id: 'exampleSystemId0',
+      name: 'Some Example System',
+      statusOk: true
+    });
+
+    this.addRecentContextServiceText = JSON.stringify({
+      user: {
+        id: 'user-x',
+        attributes: {
+          username: 'exampleuserX',
+          fullName: 'Example UserX'
+        } as Profile
+      } as User,
       space: {
-        name: 'spaceName'
+        name: 'spaceNameRecentX'
       } as Space,
       type: { 
-        name: 'contextTypeName',
-        icon: 'fa fa-heart',
-        menus: [
-          {
-            id: 'm0',
-            name: 'Menu Entry 0',
-            icon: 'fa fa-heart',
-            active: true,
-            contextLinks: [
-              {
-                context: 'someContext0',
-                type: 'internal',
-                path: '_menuEntry0_someContext0'
-              } as ContextLink,
-              {
-                context: 'someContext1',
-                type: 'external',
-                path: 'http://ext.menuEntry0.someContext1/'
-              } as ContextLink
-            ] as ContextLink[],
-            menus: [
-              {
-                id: 'm01',
-                name: 'Submenu Entry 0-1',
-                icon: 'fa fa-heart',
-                contextLinks: [
-                  {
-                    context: 'someContext0',
-                    type: 'internal',
-                    path: '/header'
-                  } as ContextLink,
-                  {
-                    context: 'someContext1',
-                    type: 'external',
-                    path: 'http://ext.menuEntry0_1.someContext1/'
-                  } as ContextLink
-                ] as ContextLink[]
-              } as MenuItem,
-              {
-                id: 'm02',
-                name: 'Submenu Entry 0-2',
-                icon: 'fa fa-heart',
-                contextLinks: [
-                  {
-                    context: 'someContext0',
-                    type: 'internal',
-                    path: '_menuEntry0_2_someContext0'
-                  } as ContextLink,
-                  {
-                    context: 'someContext1',
-                    type: 'external',
-                    path: 'http://ext.menuEntry0_2.someContext1/'
-                  } as ContextLink
-                ] as ContextLink[]
-              } as MenuItem,        
-            ] as MenuItem[]
-          } as MenuItem,
-          {
-            id: 'm1',
-            name: 'Menu Entry 1',
-            icon: 'fa fa-heart',
-            contextLinks: [
-              {
-                context: 'someContext0',
-                type: 'internal',
-                path: '_menuEntry1_someContext0'
-              } as ContextLink,
-              {
-                context: 'someContext1',
-                type: 'external',
-                path: 'http://ext.menuEntry1.someContext1/'
-              } as ContextLink
-            ] as ContextLink[],
-            menus: [
-              {
-                id: 'm11',
-                name: 'Submenu Entry 1-1',
-                icon: 'fa fa-heart',
-                contextLinks: [
-                  {
-                    context: 'someContext0',
-                    type: 'internal',
-                    path: '_menuEntry1_1_someContext0'
-                  } as ContextLink,
-                  {
-                    context: 'someContext1',
-                    type: 'external',
-                    path: 'http://ext.menuEntry1_1.someContext1/'
-                  } as ContextLink
-                ] as ContextLink[]
-              } as MenuItem,
-              {
-                id: 'm12',
-                name: 'Submenu Entry 1-2',
-                icon: 'fa fa-heart',
-                contextLinks: [
-                  {
-                    context: 'someContext0',
-                    type: 'internal',
-                    path: '_menuEntry1_2_someContext0'
-                  } as ContextLink,
-                  {
-                    context: 'someContext1',
-                    type: 'external',
-                    path: 'http://ext.menuEntry1_2.someContext1/'
-                  } as ContextLink
-                ] as ContextLink[]
-              } as MenuItem,
-            ] as MenuItem[]
-          } as MenuItem,
-          {
-            id: 'm2',
-            name: 'Menu Entry 2',
-            icon: 'fa fa-heart',
-            contextLinks: [
-              {
-                context: 'someContext0',
-                type: 'internal',
-                path: '_menuEntry2_someContext0'
-              } as ContextLink,
-              {
-                context: 'someContext1',
-                type: 'external',
-                path: 'http://ext.menuEntry2.someContext1/'
-              } as ContextLink
-            ] as ContextLink[]
-          } as MenuItem,
-        ] as MenuItem[]
+        name: 'contextTypeNameRecentX',
+        icon: 'fa fa-heart'
       } as ContextType,
-      path: 'contextPath',
-      name: 'contextName'
-    } as Context;
-    this.currentContextText = JSON.stringify(this.currentContext);
-    
-    this.recentContexts = [
-      {
-        user: this.loggedInUser,
-        space: {
-          name: 'spaceNameRecent0'
-        } as Space,
-        type: { 
-          name: 'contextTypeNameRecent0',
-          icon: 'fa fa-heart'
-        } as ContextType,
-        path: 'contextPathRecent0',
-        name: 'contextNameRecent0'
-      },
-      {
-        user: this.loggedInUser,
-        space: {
-          name: 'spaceNameRecent1'
-        } as Space,
-        type: { 
-          name: 'contextTypeNameRecent1',
-          icon: 'fa fa-heart'
-        } as ContextType,
-        path: 'contextPathRecent1',
-        name: 'contextNameRecent1'
-      }
-    ] as Context[];
-    this.recentContextsText = JSON.stringify(this.recentContexts);
-    
-    this.systemStatus = [
-      {
-        name: 'Some Subsystem',
-        statusOk: true
-      } as SystemStatus,
-      {
-        name: 'Some Other Subsystem',
-        statusOk: false
-      } as SystemStatus      
-    ]
-    this.systemStatusText = JSON.stringify(this.systemStatus);
-  }
+      path: 'contextPathRecentX',
+      name: 'contextNameRecentX'
+    } as Context);
+  }    
 }
