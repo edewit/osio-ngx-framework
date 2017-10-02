@@ -10,6 +10,7 @@ import { ContextType, Context } from 'ngx-fabric8-wit';
 import { HeaderService } from "./header.service";
 import { MenuItem } from './menu-item';
 import { MenuedContextType } from './menued-context-type';
+import { ContextLink } from './context-link';
 import { SystemStatus } from "./system-status";
 
 /*
@@ -247,7 +248,8 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
             o.active = false;
             // if the submenu has contextLinks, iterate over them
             if (!foundPath && o.contextLinks && o.contextLinks.length>0) {
-              for (let cp of o.contextLinks) {
+              let cp: ContextLink;
+              for (cp of o.contextLinks) {
                 // if a context link matches the systemContext and has the matching path, activate the submenu and the topmenu
                 if (cp.context===this.systemContext && cp.type==='internal' && cp.path === decodeURIComponent(url)) {
                   this.logger.log("[HeaderComponent] found router path in submenu menus: " + cp.path);
@@ -261,7 +263,8 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
           // if still not found, lets check if the url matches part of the path
           if (!foundPath) {
             for (let o of subMenus) {
-              for (let cp of o.contextLinks) {
+              let cp: ContextLink;
+              for (cp of o.contextLinks) {
                 if (!foundPath && cp.context===this.systemContext && cp.type==='internal' && decodeURIComponent(url).startsWith(cp.path + "/")) {
                   this.logger.log("[HeaderComponent] found router path matching submenu menus: " + cp.path);
                   foundPath = true;
@@ -274,7 +277,8 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
           // routes that can't be correctly matched based on the url should use the parent path
           if (!foundPath && this.router.routerState.snapshot.root.firstChild) {
             for (let o of subMenus) {
-              for (let cp of o.contextLinks) {
+              let cp: ContextLink;
+              for (cp of o.contextLinks) {
                 let parentPath = decodeURIComponent('/' + this.router.routerState.snapshot.root.firstChild.url.join('/'));
                 if (!foundPath && cp.context===this.systemContext && cp.type==='internal' && o.path === parentPath) {
                   this.logger.log("[HeaderComponent] found router parent path in submenu menus: " + cp.path + " parentPath: " + parentPath);
@@ -286,7 +290,8 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
             }
           }
         } else if (n.contextLinks && n.contextLinks.length>0) {
-          for (let cp of n.contextLinks) {
+          let cp: ContextLink;
+          for (cp of n.contextLinks) {
             if (cp.context===this.systemContext && cp.type==='internal' && cp.path === url) {
               this.logger.log("[HeaderComponent] found router path in toplevel menus: " + cp.path);
               n.active = true;
