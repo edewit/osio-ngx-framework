@@ -134,7 +134,8 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
       // current context has changed, we need to update the menu,
       // setting the new context to the active menu.
       let newContext: Context = changes.currentContext.currentValue;
-      this.logger.log("[HeaderComponent] detected changes to currentContext: " + newContext.name);
+      if (newContext)
+        this.logger.log("[HeaderComponent] detected changes to currentContext: " + newContext.name);
       this.setCurrentContext(newContext);
       this.logger.log("[HeaderComponent] syncing detected changes to currentContext to persistence storage.");
       if (this.changesEnabled)
@@ -325,7 +326,8 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
     // Context, which is not easily possible from this
     // module). Therefore, we only emit the event and
     // let the enclosing component route the user. 
-    this.logger.log("[HeaderComponent] selected recent context: " + context.name);
+    if (context)
+      this.logger.log("[HeaderComponent] selected recent context: " + context.name);
     this.onSelectRecentContext.emit(context);
   }
 
@@ -371,7 +373,8 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
 
   private menuSelect(menuItem: MenuItem) {
     this.goTo(menuItem);
-    this.logger.log("[HeaderComponent] selected topmenu: " + menuItem.name);
+    if (menuItem)
+      this.logger.log("[HeaderComponent] selected topmenu: " + menuItem.name);
     if (this.activeTopLevelMenu) {
       this.activeTopLevelMenu.active = false;
     }
@@ -383,7 +386,8 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
   private secondaryMenuSelect(menuItem: MenuItem) {
     this.goTo(menuItem);
     // TODO: this may need to also send [queryParams]="plannerFollowQueryParams"
-    this.logger.log("[HeaderComponent] selected submenu: " + menuItem.name);
+    if (menuItem)
+      this.logger.log("[HeaderComponent] selected submenu: " + menuItem.name);
     if (this.activeSubMenu) {
       this.activeSubMenu.active = false;
     }
