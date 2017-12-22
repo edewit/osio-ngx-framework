@@ -29,6 +29,8 @@ export class HeaderService {
   private userSource$: Observable<User>;
   private systemStatusSource: BehaviorSubject<SystemStatus[]>;
   private systemStatusSource$: Observable<SystemStatus[]>;
+  private activeMenuSource: BehaviorSubject<string>;
+  private activeMenuSource$: Observable<string>;
   
   constructor(private logger: Logger) {
     this.logger.log("[HeaderService] initialized.");
@@ -189,6 +191,35 @@ export class HeaderService {
     }
     this.logger.log("[HeaderService] Retrieved user");
     return this.userSource$;
+  }
+
+  /**
+   * 
+   */
+  public activateMenuItemById(menuId: string) {
+    this.logger.log("[HeaderService] Activated MenuItem: " + menuId);
+    // notify subscribers
+    if (!this.activeMenuSource) {
+      this.logger.log("[HeaderService] Creating new BehaviourSubject for activeMenuSource");
+      this.activeMenuSource = new BehaviorSubject<string>(menuId);
+      this.activeMenuSource$ = this.activeMenuSource.asObservable();
+    }
+    this.logger.log("[HeaderService] Sending out new activated MenuItem to subscribers");
+    this.activeMenuSource.next(menuId);
+  }
+
+  /**
+   * 
+   */
+  public menuItemActivations(): Observable<string> {
+    let systemStatus = this.retrieve(this.KEY_SYSTEM_STATUS) as SystemStatus[];
+    if (!this.activeMenuSource) {
+      this.logger.log("[HeaderService] Creating new BehaviourSubject for activeMenuSource");
+      this.activeMenuSource = new BehaviorSubject<string>(null);
+      this.activeMenuSource$ = this.activeMenuSource.asObservable();
+    } 
+    this.logger.log("[HeaderService] Subscribed to menuItem activations");
+    return this.activeMenuSource$;
   }
 
   /**

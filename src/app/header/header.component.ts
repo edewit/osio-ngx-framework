@@ -13,8 +13,6 @@ import { MenuedContextType } from './menued-context-type';
 import { ContextLink } from './context-link';
 import { SystemStatus } from "./system-status";
 
-// TODO: wir brauchen einen weg, wie man boostrappt.
-
 /*
  * This is a re-usable header component that is able to persist the state
  * of all involved data on page reloads (or application switches on the same
@@ -189,6 +187,10 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
       this.logger.log("[HeaderComponent] incoming service change to user: " + JSON.stringify(value));
       this.user = value
     });
+    this.headerService.menuItemActivations().subscribe(value => {
+      this.logger.log("[HeaderComponent] incoming activate MenuItem: " + value);
+      this.activateMenuItemById(value);
+    });    
     // we now allow changes to be propagated. We need this because the localStorage values
     // should have precedence while still being able to detect changes to the @Input attributes.
     // TODO: persist everything
@@ -207,6 +209,37 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.eventListeners.forEach(e => e.unsubscribe());
+  }
+
+  private activateMenuItemById(menuId: string) {
+    // run thu the current context menus, find the menuItem that matches, activate it
+    //this.currentContext
+    if (this.currentContext && this.currentContext.type && this.currentContext.type.hasOwnProperty('menus')) {
+      let menus = (this.currentContext.type as MenuedContextType).menus;
+      for (let n of menus) {
+        if (n.id == menuId) {
+          // found the menu, activate and select it
+          n.active = true;
+          this.menuSelect(n); 
+        } else {
+          // clear the active state
+          n.active = false;
+        }
+        // now get into the submenus        
+        if (n.menus) {
+          for (let o of n.menus) {
+            if (o.id == menuId) {
+              // found the menu, activate and select it
+              o.active = true;
+              this.secondaryMenuSelect(o); 
+            } else {
+              // clear the active state
+              o.active = false;
+            }    
+          }
+        }
+      }
+    }
   }
 
   // this retrieves the current url of the browser and sets the
