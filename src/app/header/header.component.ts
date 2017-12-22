@@ -173,19 +173,21 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
     // headerService.clear().
     this.headerService.retrieveCurrentContext().subscribe(value => { 
       this.logger.log("[HeaderComponent] incoming service change to currentContext: " + JSON.stringify(value));
-      this.setCurrentContext(value)
+      this.setCurrentContext(value);
+      // update the current menu state for the new currentContext
+      this.updateMenuActiveState();
     });
     this.headerService.retrieveRecentContexts().subscribe(value => {
       this.logger.log("[HeaderComponent] incoming service change to recentContexts: " + JSON.stringify(value));
-      this.recentContexts = value
+      this.recentContexts = value;
     });
     this.headerService.retrieveSystemStatus().subscribe(value => {
       this.logger.log("[HeaderComponent] incoming service change to systemStatus: " + JSON.stringify(value));
-      this.systemStatus = value
+      this.systemStatus = value;
     });
     this.headerService.retrieveUser().subscribe(value => {
       this.logger.log("[HeaderComponent] incoming service change to user: " + JSON.stringify(value));
-      this.user = value
+      this.user = value;
     });
     this.headerService.menuItemActivations().subscribe(value => {
       this.logger.log("[HeaderComponent] incoming activate MenuItem: " + value);
@@ -213,12 +215,13 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
 
   private activateMenuItemById(menuId: string) {
     // run thu the current context menus, find the menuItem that matches, activate it
-    //this.currentContext
+    this.logger.log("[HeaderComponent] activating MenuItem: " + menuId);    
     if (this.currentContext && this.currentContext.type && this.currentContext.type.hasOwnProperty('menus')) {
       let menus = (this.currentContext.type as MenuedContextType).menus;
       for (let n of menus) {
         if (n.id == menuId) {
           // found the menu, activate and select it
+          this.logger.log("[HeaderComponent] found MenuItem for activation: " + menuId);    
           n.active = true;
           this.menuSelect(n); 
         } else {
@@ -229,6 +232,7 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
         if (n.menus) {
           for (let o of n.menus) {
             if (o.id == menuId) {
+              this.logger.log("[HeaderComponent] found submenu MenuItem for activation: " + menuId);    
               // found the menu, activate and select it
               o.active = true;
               this.secondaryMenuSelect(o); 

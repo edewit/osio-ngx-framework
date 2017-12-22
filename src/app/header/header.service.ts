@@ -194,7 +194,10 @@ export class HeaderService {
   }
 
   /**
-   * 
+   * This activates a menu given by the menuId. The currentContext's
+   * menus will be checked against the given Id, and if found, the menu
+   * is activated/highlighted.
+   * @param menuId the menuId to be activated.
    */
   public activateMenuItemById(menuId: string) {
     this.logger.log("[HeaderService] Activated MenuItem: " + menuId);
@@ -209,7 +212,8 @@ export class HeaderService {
   }
 
   /**
-   * 
+   * Retrieves the event notifier for updates the the menu activations. This
+   * is usually only used from the HeaderComponent.
    */
   public menuItemActivations(): Observable<string> {
     let systemStatus = this.retrieve(this.KEY_SYSTEM_STATUS) as SystemStatus[];
