@@ -372,13 +372,13 @@ export class HeaderService {
           } as MenuItem,
           {
             id: 'planner',
-            name: 'Planner',
+            name: 'Plan',
             icon: '',
             contextLinks: [
               {
                 context: 'planner',
                 type: 'internal',
-                path: '/planner/list'
+                path: '/plan/list'
               } as ContextLink,
               {
                 context: 'platform',
