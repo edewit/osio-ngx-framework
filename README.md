@@ -2,6 +2,14 @@
 
 Welcome to osio-ngx-framework.  This is a library of common Angular components for use with the OSIO implementation. Below is information on how to get started using osio-ngx-framework.  If you wish to contribute to osio-ngx-framework, please go to our [Contributions page][contributing].
 
+### Running Tests
+
+You will need ´´´karma cli´´´ installed globally, then run
+
+```
+npm run test
+```
+
 ### Using osio-ngx-framework In Your Application
 
 This example demonstrates using the Angular-cli to get started with osio-ngx-framework
