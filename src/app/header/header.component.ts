@@ -341,10 +341,14 @@ export class HeaderComponent implements OnChanges, OnInit, OnDestroy {
     }
     if (context) {
       this.logger.log("[HeaderComponent] set current context to " + context.name);
-      // set the new context menu
-      let menus = (this.currentContext.type as MenuedContextType).menus;
-      this.activeTopLevelMenu = menus[0];
-      this.activeTopLevelMenu.active = true;  
+      if ((this.currentContext.type as MenuedContextType).menus) {
+        // set the new context menu
+        let menus = (this.currentContext.type as MenuedContextType).menus;
+        this.activeTopLevelMenu = menus[0];
+        this.activeTopLevelMenu.active = true;    
+      } else {
+        this.logger.log("[HeaderComponent] current context does not have menus");
+      }
     } else {
       this.logger.log("[HeaderComponent] unset current context");      
     }
