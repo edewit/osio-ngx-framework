@@ -9,17 +9,8 @@ import { WelcomeComponent } from './components/welcome.component';
 
 const routes: Routes = [{
     path: '',
-    component: WelcomeComponent,
+    component: HeaderExampleComponent,
     pathMatch: 'full'
-  }, {
-    path: 'sample',
-    component: SampleExampleComponent
-  }, {
-    path: 'footer',
-    component: FooterExampleComponent
-  }, {
-    path: 'header',
-    component: HeaderExampleComponent
   }];
 
 @NgModule({

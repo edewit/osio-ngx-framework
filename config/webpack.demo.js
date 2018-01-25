@@ -1,6 +1,6 @@
 /**
  * Webpack configuration for the demo service. This is used to start
- * a demonstration server that serves an example as well as the 
+ * a demonstration server that serves an example as well as the
  * documentation for this library.
  */
 
@@ -52,9 +52,9 @@ module.exports = {
   devtool: 'cheap-module-eval-source-map',
 
   entry: {
-    'polyfills': './src/polyfills.ts',
-    'vendor': './src/vendor.ts',
-    'app': './src/demo.ts'
+    'polyfills-header': './src/polyfills.ts',
+    'vendor-header': './src/vendor.ts',
+    'header': './src/demo.ts'
   },
 
   resolve: {
@@ -79,27 +79,27 @@ module.exports = {
       {
         test: /\.html$/,
         loader: 'html-loader'
-      }, 
+      },
       {
         test: /\.css$/,
         loader: extractCSS.extract({
           fallback: "style-loader",
           use: "css-loader?sourceMap&context=/"
         })
-      }, 
+      },
       {
         test: /\.less$/,
         loaders: [
           {
             loader: 'css-to-string-loader'
-          }, 
+          },
           {
             loader: 'css-loader',
             options: {
               sourceMap: true,
               context: '/'
             }
-          }, 
+          },
           {
             loader: 'less-loader',
             options: {
@@ -112,7 +112,7 @@ module.exports = {
 
       /**
        * File loader for supporting fonts, for example, in CSS files.
-       */ 
+       */
       {
         test: /\.woff2?$|\.ttf$|\.eot$|\.svg$/,
         loaders: [
@@ -124,7 +124,7 @@ module.exports = {
             }
           }
         ]
-      }, 
+      },
       {
         test: /\.jpg$|\.png$|\.gif$|\.jpeg$/,
         loaders: [
@@ -142,10 +142,12 @@ module.exports = {
 
   output: {
     path: root('dist-demo'),
-    publicPath: '',
+    publicPath: 'http://localhost:8002/',
     filename: '[name].js',
     chunkFilename: '[id].chunk.js',
-    sourceMapFilename: '[name].map'
+    sourceMapFilename: '[name].map',
+    library: '[name]',
+    libraryTarget: "amd"
   },
 
   plugins: [
@@ -214,5 +216,13 @@ module.exports = {
       excludePrivate: true,
       exclude: '**/+(examples|demo)/**'
     }, './src')
-  ]
+  ],
+
+  devServer: {
+    historyApiFallback: true,
+    stats: 'minimal',
+    headers: {
+      "Link" : `<http://localhost:8002/header.js>;rel="fragment-script"`
+    }
+  }
 };

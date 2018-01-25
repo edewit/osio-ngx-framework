@@ -1,5 +1,5 @@
 import {
-  Component
+  Component, NgZone
 } from '@angular/core';
 
 import { User, Profile } from 'ngx-login-client';
@@ -16,11 +16,11 @@ import { HeaderService } from '../header.service';
     .sample-form .form-horizontal .form-group {
       margin-left: 0px;
     }
-    
+
     .padding-top-15 {
       padding-top: 15px;
     }
-    
+
     .padding-bottom-15 {
       padding-bottom: 15px;
     }
@@ -61,13 +61,13 @@ import { HeaderService } from '../header.service';
   templateUrl: './header-example.component.html'
 })
 export class HeaderExampleComponent {
-  
+
   systemContext: string;
   loggedInUser: User;
   currentContext: Context;
   recentContexts: Context[];
   systemStatus: SystemStatus[];
-  
+
   selectRecentContextEventText: string;
   selectMenuItemEventText: string;
   selectViewAllSpacesEventText: string;
@@ -99,7 +99,7 @@ export class HeaderExampleComponent {
 
   onSelectMenuItem(menuItem: MenuItem) {
     this.selectMenuItemEventText = menuItem?JSON.stringify(menuItem):'isNil';
-  }    
+  }
 
   onSelectViewAllSpaces() {
     this.selectViewAllSpacesEventText = 'clicked';
@@ -115,7 +115,7 @@ export class HeaderExampleComponent {
     this.selectUserProfileEventText = 'clicked';
     setTimeout(() => { this.selectUserProfileEventText = ''}, 1000);
   }
-      
+
   onSelectCreateSpace() {
     this.selectCreateSpaceEventText = 'clicked';
     setTimeout(() => { this.selectCreateSpaceEventText = ''}, 1000);
@@ -146,7 +146,7 @@ export class HeaderExampleComponent {
 
   bootstrapService() {
     this.headerService.clean();
-    
+
     let user: User = {
       id: 'user-1-service',
       attributes: {
@@ -250,7 +250,7 @@ export class HeaderExampleComponent {
     this.systemStatusText = JSON.stringify(this.systemStatus);
   }
 
-  constructor(private headerService: HeaderService) {    
+  constructor(private headerService: HeaderService, private ngZone: NgZone) {
     // listen to changes on the service. If a change is coming in,
     // update the serviceTexts and update the localTexts. We don't set
     // the actual values here in the example as they are not used
@@ -259,15 +259,15 @@ export class HeaderExampleComponent {
       this.currentContextServiceText = JSON.stringify(value)
       this.currentContextText = JSON.stringify(value);
     });
-    headerService.retrieveRecentContexts().subscribe(value => { 
+    headerService.retrieveRecentContexts().subscribe(value => {
       this.recentContextsServiceText = JSON.stringify(value)
       this.recentContextsText = JSON.stringify(value);
     });
-    headerService.retrieveSystemStatus().subscribe(value => { 
+    headerService.retrieveSystemStatus().subscribe(value => {
       this.systemStatusServiceText = JSON.stringify(value)
       this.systemStatusText = JSON.stringify(value);
     });
-    headerService.retrieveUser().subscribe(value => { 
+    headerService.retrieveUser().subscribe(value => {
       this.loggedInUserServiceText = JSON.stringify(value)
       this.loggedInUserText = JSON.stringify(value);
     });
@@ -292,12 +292,17 @@ export class HeaderExampleComponent {
       space: {
         name: 'spaceNameRecentX'
       } as Space,
-      type: { 
+      type: {
         name: 'contextTypeNameRecentX',
         icon: 'fa fa-heart'
       } as ContextType,
       path: 'contextPathRecentX',
       name: 'contextNameRecentX'
     } as Context);
-  }    
+
+    const eventBus: any = (window as any)['EventBus'];
+    eventBus.addEventListener('loggedin', (event:any) => {
+      ngZone.run(() => this.loggedInUser = event.target);
+    });
+  }
 }
